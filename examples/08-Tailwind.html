@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 08 章示例 · Tailwind 原子类演示（CDN 版）</title>
+<!--
+  ⚠️ CDN 版仅供"零构建、双击即看"的本地演示。
+  生产环境请用构建版（见 examples/09-tailwind-demo/，npm install && npm run build）。
+  CDN 版在浏览器运行时用 JS 现场生成 CSS，加载慢、体积大，不适合上线。
+-->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // 演示手动暗色切换，需要 class 策略（默认是 media 策略）
+  tailwind.config = {
+    darkMode: 'class',
+  };
+</script>
+</head>
+<body class="bg-gray-100 text-gray-900 dark:bg-gray-950 dark:text-gray-100 min-h-screen p-6">
+
+  <!-- 顶部工具条：说明 + 暗色切换 -->
+  <div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold">第 08 章 · Tailwind 原子类演示</h1>
+      <button id="dark-toggle"
+              class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm">
+        切换暗色
+      </button>
+    </div>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">
+      本页用 <code>cdn.tailwindcss.com</code> 的 CDN 版，<strong>仅用于演示类名效果</strong>（零构建）。
+      生产请用构建版：<code>npx tailwindcss -i input.css -o output.css</code>。
+      拖动窗口宽度，观察响应式前缀 <code>sm:</code> / <code>lg:</code> 的效果。
+    </p>
+  </div>
+
+  <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- ① 布局类：Flex 导航栏 -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+      <h2 class="font-semibold mb-4">① Flex：导航栏首尾贴边</h2>
+      <nav class="flex items-center justify-between px-6 py-3 bg-gray-800 text-white rounded-lg">
+        <span class="text-lg font-bold">Logo</span>
+        <ul class="flex gap-6 text-sm">
+          <li><a href="#" class="hover:text-gray-300">首页</a></li>
+          <li><a href="#" class="hover:text-gray-300">产品</a></li>
+          <li><a href="#" class="hover:text-gray-300">关于</a></li>
+        </ul>
+      </nav>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+        核心类：<code class="text-blue-600 dark:text-blue-400">flex justify-between items-center</code>。
+        等价 <code>display:flex; justify-content:space-between; align-items:center</code>。
+      </p>
+    </section>
+
+    <!-- ② 布局类：Grid 卡片网格 -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+      <h2 class="font-semibold mb-4">② Grid：三列卡片网格</h2>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded text-sm">1</div>
+        <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded text-sm">2</div>
+        <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded text-sm">3</div>
+        <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded text-sm">4</div>
+        <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded text-sm">5</div>
+        <div class="p-3 bg-blue-100 dark:bg-blue-900/40 rounded text-sm">6</div>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+        核心类：<code class="text-blue-600 dark:text-blue-400">grid grid-cols-3 gap-3</code>。
+        等价 <code>display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:0.75rem</code>。
+      </p>
+    </section>
+
+    <!-- ③ 设计令牌：间距比例尺 -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+      <h2 class="font-semibold mb-4">③ 设计令牌：4px 间距比例尺</h2>
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 text-sm">
+          <span class="w-16 text-gray-500 dark:text-gray-400">p-1 (4px)</span>
+          <div class="flex-1 h-4 bg-blue-300 p-1"><div class="h-full bg-white/50 rounded"></div></div>
+        </div>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="w-16 text-gray-500 dark:text-gray-400">p-2 (8px)</span>
+          <div class="flex-1 h-4 bg-blue-300 p-2"><div class="h-full bg-white/50 rounded"></div></div>
+        </div>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="w-16 text-gray-500 dark:text-gray-400">p-4 (16px)</span>
+          <div class="flex-1 h-4 bg-blue-300 p-4"><div class="h-full bg-white/50 rounded"></div></div>
+        </div>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="w-16 text-gray-500 dark:text-gray-400">p-8 (32px)</span>
+          <div class="flex-1 h-4 bg-blue-300 p-8"><div class="h-full bg-white/50 rounded"></div></div>
+        </div>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+        类名数字 × 4px = 像素值。<code class="text-blue-600 dark:text-blue-400">p-4</code> = 16px。
+        固定刻度让全项目间距天然一致。
+      </p>
+    </section>
+
+    <!-- ④ 响应式前缀 -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+      <h2 class="font-semibold mb-4">④ 响应式：移动优先（拖窗口看变化）</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="p-4 bg-green-100 dark:bg-green-900/40 rounded text-sm">1 列（默认）</div>
+        <div class="p-4 bg-green-100 dark:bg-green-900/40 rounded text-sm">sm: 2 列</div>
+        <div class="p-4 bg-green-100 dark:bg-green-900/40 rounded text-sm">lg: 3 列</div>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+        类：<code class="text-green-600 dark:text-green-400">grid-cols-1 sm:grid-cols-2 lg:grid-cols-3</code>。
+        无前缀打底（1 列），<code>sm:</code>/<code>lg:</code> 往上增强——移动优先。
+      </p>
+    </section>
+
+    <!-- ⑤ 状态前缀 -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+      <h2 class="font-semibold mb-4">⑤ 状态前缀：hover / focus-visible</h2>
+      <div class="flex flex-wrap gap-3">
+        <button class="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 active:scale-95 focus-visible:ring-2 focus-visible:ring-blue-300">
+          悬停/按我
+        </button>
+        <button class="px-4 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600 focus-visible:ring-2 focus-visible:ring-green-300">
+          Tab 键聚焦我
+        </button>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+        <code class="text-blue-600 dark:text-blue-400">hover:bg-blue-600</code>（悬停变深）、
+        <code class="text-blue-600 dark:text-blue-400">active:scale-95</code>（按下微缩）、
+        <code class="text-blue-600 dark:text-blue-400">focus-visible:ring-2</code>（键盘聚焦出环）。
+      </p>
+    </section>
+
+    <!-- ⑥ 暗色模式 -->
+    <section class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+      <h2 class="font-semibold mb-4">⑥ 暗色模式：dark: 前缀</h2>
+      <div class="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+        我是明暗两套配色。点右上角「切换暗色」试试。
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">
+        类：<code class="text-blue-600 dark:text-blue-400">bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100</code>。
+        本页配了 <code>darkMode: 'class'</code>，靠 <code>&lt;html&gt;</code> 上的 <code>.dark</code> 类触发。
+      </p>
+    </section>
+
+  </div>
+
+  <script>
+    // 暗色切换：给 <html> 挂/摘 .dark 类（配合 darkMode: 'class'）
+    const btn = document.getElementById('dark-toggle');
+    btn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,715 @@
+{
+  "stage1": [
+    {
+      "id": "s1-1",
+      "no": 1,
+      "q": "我要排的是\"一行/一列\"还是\"行列网格\"？——决定用 Flex 还是 Grid。",
+      "answer": true,
+      "why": "`flex` 是 `flex-grow flex-shrink flex-basis` 三个值的缩写；只写一个数字时，`flex-basis` 默认变成 `0%`。",
+      "from": "02 章"
+    },
+    {
+      "id": "s1-2",
+      "no": 2,
+      "q": "我声明的是\"容器里元素的关系\"，还是\"某个元素自己的位置\"？——前者写容器属性，后者写子项属性。",
+      "answer": true,
+      "why": "`flex: auto` 展开就是 `1 1 auto`，基准是内容自身宽度——所以它先保证内容宽度，再分剩余空间。",
+      "from": "02 章"
+    },
+    {
+      "id": "s1-3",
+      "no": 3,
+      "q": "有没有元素会因为\"默认值\"被意外压缩/撑破（`flex-shrink: 1`、`fr` 的 `min-content`）？——该 `flex-shrink: 0` 或 `minmax(0, 1fr)` 的别漏。",
+      "answer": false,
+      "why": "默认是 `row`（水平方向），`column` 需要显式声明。",
+      "from": "02 章"
+    },
+    {
+      "id": "s1-4",
+      "no": 4,
+      "q": "间距是用 `gap` 写的，还是用子项 `margin` 凑的？——优先 `gap`，能避开外边距合并。",
+      "answer": false,
+      "why": "说反了：`justify-content` 控制**主轴**，`align-items` 控制**交叉轴**。默认主轴是水平方向，所以 `justify-content` 管左右、`align-items` 管上下。",
+      "from": "02 章"
+    },
+    {
+      "id": "s1-5",
+      "no": 5,
+      "q": "默认样式是不是\"最小屏幕\"（移动优先）？断点是不是 `min-width` 从小到大？——避免桌面优先往回改。",
+      "answer": false,
+      "why": "`flex-grow: 1` 只负责\"按比例分剩余空间\"，最终宽度还要看 `flex-basis`（默认 `auto`，即内容宽度）。内容长的那个基础更宽，分完还是更宽。想严格等宽要 `flex: 1`（basis 为 0）。",
+      "from": "02 章"
+    },
+    {
+      "id": "s1-6",
+      "no": 6,
+      "q": "`flex-shrink` 的默认值是 `0`，所以 flex 子项默认不会被压缩。",
+      "answer": false,
+      "why": "默认值是 `1`，子项**默认就会收缩**。这也是\"设了 `width` 却被压扁\"的常见原因。",
+      "from": "03 章"
+    },
+    {
+      "id": "s1-7",
+      "no": 7,
+      "q": "Grid 里写 `grid-template-columns: 1fr 1fr 1fr`，三列一定严格等宽。",
+      "answer": false,
+      "why": "`fr` 的最小尺寸默认是 `auto`（内容的最小宽度）。某一列放一个超长单词/长 URL，它会把那一列撑宽，三列就不再等分。严格等分要 `minmax(0, 1fr)` 或给子项 `min-width: 0`。",
+      "from": "04 章"
+    },
+    {
+      "id": "s1-8",
+      "no": 8,
+      "q": "Grid 里 `repeat(3, 1fr)` 和 `repeat(3, auto)` 的效果完全一样。",
+      "answer": false,
+      "why": "`1fr` 是\"按比例分剩余空间\"，`auto` 是\"按内容大小决定\"。前者会把空间撑满，后者有多宽占多宽。",
+      "from": "04 章"
+    },
+    {
+      "id": "s1-9",
+      "no": 9,
+      "q": "`grid-template-areas` 用多个字符串表示多行，同一个字符串里用空格分隔不同列。",
+      "answer": true,
+      "why": "一个字符串 = 一行，字符串内空格分隔 = 不同列，多个字符串 = 多行。每行字符串的列数必须一致，否则整条规则失效。",
+      "from": "05 章"
+    },
+    {
+      "id": "s1-10",
+      "no": 10,
+      "q": "BFC（块级格式化上下文）可以阻止子元素的 `margin-top` 与自身合并（\"穿透\"）。",
+      "answer": true,
+      "why": "触发 BFC（如 `overflow: hidden`、`display: flow-root`）后，子元素的 `margin-top` 不会穿透到外面跟父元素合并。这也是 BFC 的经典用途之一。",
+      "from": "01 章"
+    },
+    {
+      "id": "s1-11",
+      "no": 11,
+      "q": "两个上下相邻的块级元素，一个 `margin-bottom: 20px`，一个 `margin-top: 30px`，它们之间的实际间距是 30px。",
+      "answer": true,
+      "why": "垂直方向的相邻 `margin` 会**合并取较大值**：`max(20, 30) = 30`，不是 `50`。这是规范明确设计的\"外边距合并\"。",
+      "from": "01 章"
+    },
+    {
+      "id": "s1-12",
+      "no": 12,
+      "q": "水平方向相邻元素的 `margin` 也会像垂直方向那样发生合并。",
+      "answer": false,
+      "why": "外边距合并**只发生在垂直方向**，水平方向（左右相邻）不合并。",
+      "from": "01 章"
+    },
+    {
+      "id": "s1-13",
+      "no": 13,
+      "q": "两个都设了 `position: relative` 的兄弟元素，`z-index` 大的那个会盖在上面。",
+      "answer": true,
+      "why": "前提是两者在**同一个层叠上下文**里、且都非 `static`。`z-index` 越大越靠上；都没设 `z-index` 时，后写的盖先写的。",
+      "from": "01 章"
+    },
+    {
+      "id": "s1-14",
+      "no": 14,
+      "q": "`position: sticky` 的行为介于 `relative` 和 `fixed` 之间。",
+      "answer": true,
+      "why": "滚动到阈值前表现像 `relative`（还在文档流里），超过阈值后像 `fixed`（固定在视口内某位置）。",
+      "from": "01 章"
+    },
+    {
+      "id": "s1-15",
+      "no": 15,
+      "q": "`position: sticky` 的元素一旦滚动过阈值，就会一直固定在视口里，不再受父容器边界限制。",
+      "answer": false,
+      "why": "sticky 的\"粘住\"受**父容器边界**限制：父容器滚出视口，sticky 元素会被一起带走，不会无限地粘在视口里。",
+      "from": "01 章"
+    },
+    {
+      "id": "s1-16",
+      "no": 16,
+      "q": "\"移动优先\"的响应式写法是：基础样式按移动端写，再用 `min-width` 的媒体查询逐步增强桌面端。",
+      "answer": true,
+      "why": "移动优先 = 默认样式服务最小屏幕，用 `min-width` 断点从小到大增强。反过来的 `max-width` 是\"桌面优先\"。",
+      "from": "07 章"
+    },
+    {
+      "id": "s1-17",
+      "no": 17,
+      "q": "`@media (min-width: 768px)` 表示\"屏幕宽度小于等于 768px 时生效\"。",
+      "answer": false,
+      "why": "`min-width: 768px` 是\"最小宽度 768px\"，即**大于等于** 768px 时生效。",
+      "from": "07 章"
+    },
+    {
+      "id": "s1-18",
+      "no": 18,
+      "q": "Tailwind 的原子类一个 class 只干一件事，例如 `p-4` 只负责设置 padding。",
+      "answer": true,
+      "why": "原子类的核心就是\"单一职责\"：一个类只对应一条（或极少几条）CSS 声明，靠组合来表达复杂样式。",
+      "from": "08 章"
+    },
+    {
+      "id": "s1-19",
+      "no": 19,
+      "q": "Tailwind 里的 `flex-1` 等价于 CSS 的 `flex: 1 1 0%`。",
+      "answer": true,
+      "why": "Tailwind 的 `flex-1` 展开就是 `flex: 1 1 0%`。注意它和 `flex-auto`（`flex: 1 1 auto`）不一样。",
+      "from": "08 章"
+    },
+    {
+      "id": "s1-20",
+      "no": 20,
+      "q": "`box-sizing: border-box` 让 `width` 把 `padding` 和 `border` 也算进去。",
+      "answer": true,
+      "why": "`border-box` 下，`width` = 内容 + `padding` + `border` 的总和，写多少就是多少，不会出现\"内容把盒子撑破\"的经典坑。",
+      "from": "01 章"
+    }
+  ],
+  "stage2": [
+    {
+      "id": "s2-1",
+      "no": 1,
+      "code": ".box { display: flex; }",
+      "out": "三个子项水平排成一行，从左到右 a、b、c，宽度各自只够放下内容。",
+      "note": "`display: flex` 让子项沿主轴（默认水平）排列。"
+    },
+    {
+      "id": "s2-2",
+      "no": 2,
+      "code": ".box { display: flex; flex-direction: column; }",
+      "out": "三个子项垂直排成一列，从上到下 a、b、c。",
+      "note": "`flex-direction: column` 把主轴从水平改成垂直。"
+    },
+    {
+      "id": "s2-3",
+      "no": 3,
+      "code": ".box { display: flex; justify-content: space-between; }",
+      "out": "a 贴最左、c 贴最右，b 在正中间；三者的间距是\"剩余空间均分\"（300px 分成两段，每段 150px）。",
+      "note": "`space-between` 把剩余空间平均分配到子项之间，首尾不留空。"
+    },
+    {
+      "id": "s2-4",
+      "no": 4,
+      "code": ".box { display: flex; align-items: center; height: 100px; }",
+      "out": "a、b 在垂直方向居中（交叉轴居中），水平方向仍靠左。",
+      "note": "`align-items` 管交叉轴；默认主轴水平，所以它管的是\"上下居中\"。"
+    },
+    {
+      "id": "s2-5",
+      "no": 5,
+      "code": ".box { display: flex; }\n.a { flex-grow: 1; }\n.b { flex-grow: 2; }",
+      "out": "剩余空间 300px 按 1:2 分：a 变 200px，b 变 300px，c 保持 100px。",
+      "note": "`flex-grow` 按**比例**分剩余空间；没设的项保持原宽度。"
+    },
+    {
+      "id": "s2-6",
+      "no": 6,
+      "code": ".box { display: flex; }\n.box > div { flex: 1; }",
+      "out": "三个子项等宽，各占 200px。",
+      "note": "`flex: 1` 的 `flex-basis` 是 0，把内容宽度先\"清零\"，再均分，所以严格等宽。"
+    },
+    {
+      "id": "s2-7",
+      "no": 7,
+      "code": ".box { display: flex; }\n.a, .b { flex: 1; }",
+      "out": "理论上各占一半，但 `.a` 里的长文字不换行，它的 `min-content` 宽度很大，会把 `.a` 撑宽，导致两列不再等分（甚至溢出容器）。",
+      "note": "`flex: 1` 的 `basis: 0` 不等于\"能缩到 0\"；要严格等分需给子项 `min-width: 0`。"
+    },
+    {
+      "id": "s2-8",
+      "no": 8,
+      "code": ".grid { display: grid; grid-template-columns: 1fr 2fr 1fr; }",
+      "out": "三列，中间列宽是两侧的两倍；6 个格子按\"从左到右、换行\"自动排满。",
+      "note": "`1fr 2fr 1fr`：`fr` 按比例分剩余空间。"
+    },
+    {
+      "id": "s2-9",
+      "no": 9,
+      "code": ".grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }",
+      "out": "3 列等宽，行与行、列与列之间都有 10px 间距。",
+      "note": "`repeat(3, 1fr)` + `gap: 10px`；`gap` 同时管行列。"
+    },
+    {
+      "id": "s2-10",
+      "no": 10,
+      "code": ".grid {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-areas:\n    \"header header\"\n    \"sidebar main\"\n    \"footer footer\";\n}",
+      "out": "头、尾各占满两列；侧栏在左（固定 200px）、主内容在右（占剩余）。",
+      "note": "`grid-template-areas` 用字符串拼出布局地图；同一行的单元格用空格连，跨列靠\"名字写两遍\"。"
+    },
+    {
+      "id": "s2-11",
+      "no": 11,
+      "code": ".grid { display: grid; grid-template-columns: repeat(3, 1fr); }\n.a { grid-column: 1 / 3; }",
+      "out": "a 横跨第 1、2 列；b 落到第 3 列；c 换到下一行的第 1 列。",
+      "note": "`grid-column: 1 / 3` 的 3 是\"到第 3 条网格线为止\"，占 1、2 两格。"
+    },
+    {
+      "id": "s2-12",
+      "no": 12,
+      "code": ".grid { display: grid; grid-template-columns: minmax(200px, 1fr) 1fr; }",
+      "out": "第一列最小 200px，剩余 300px 两列按 1:1 分，最终各约 250px。",
+      "note": "`minmax(200px, 1fr)` 先保底 200px，再把剩余按 `1fr` 分配。"
+    },
+    {
+      "id": "s2-13",
+      "no": 13,
+      "code": ".box { display: flex; justify-content: center; align-items: center; height: 200px; }",
+      "out": "item 在水平、垂直两个方向都居中。",
+      "note": "`justify-content` + `align-items` 双 `center` 是 flex 居中三件套之二。"
+    },
+    {
+      "id": "s2-14",
+      "no": 14,
+      "code": ".box { display: grid; place-items: center; height: 200px; }",
+      "out": "item 水平垂直居中，效果同上题，但只写一行。",
+      "note": "`place-items: center` 是 `align-items` + `justify-items` 的缩写。"
+    },
+    {
+      "id": "s2-15",
+      "no": 15,
+      "code": ".item { width: 100px; height: 50px; margin: 0 auto; }",
+      "out": "item 水平居中，垂直方向仍靠顶。",
+      "note": "`margin: 0 auto` 只把**水平**剩余空间平均分到左右；垂直不生效。"
+    },
+    {
+      "id": "s2-16",
+      "no": 16,
+      "code": ".box { display: flex; }\n.box > div:last-child { margin-left: auto; }",
+      "out": "a 靠左，b 被推到最右边（整体像 `space-between`）。",
+      "note": "`margin-left: auto` 会吸收所有剩余空间——这是 flex 里\"把一个元素顶到另一头\"的经典写法。"
+    },
+    {
+      "id": "s2-17",
+      "no": 17,
+      "code": ".box { display: flex; align-items: flex-start; height: 100px; }\n.box > div:nth-child(2) { align-self: flex-end; }",
+      "out": "a、c 贴顶部，b 单独贴底部。",
+      "note": "`align-self` 只覆盖**自己**的交叉轴对齐，不影响别人。"
+    },
+    {
+      "id": "s2-18",
+      "no": 18,
+      "code": ".box { display: flex; flex-wrap: wrap; }\n.box > div { width: 50%; }",
+      "out": "一行放不下三个（每个 50% 即 150px，容器 300px 只能放 2 个），所以 a、b 在一行，c 换到第二行。",
+      "note": "`flex-wrap: wrap` 允许换行；每个子项宽 50%，每行最多 2 个。"
+    },
+    {
+      "id": "s2-19",
+      "no": 19,
+      "code": ".box { display: flex; gap: 10px; }",
+      "out": "三个子项之间各有 10px 间距，首尾没有多余空隙。",
+      "note": "`gap` 只产生在相邻子项之间，不含首尾。"
+    },
+    {
+      "id": "s2-20",
+      "no": 20,
+      "code": ".box { display: flex; }\n.c { order: -1; }",
+      "out": "显示顺序变成 c、a、b。",
+      "note": "`order` 改变视觉顺序；默认都是 0，`-1` 会排到最前。"
+    },
+    {
+      "id": "s2-21",
+      "no": 21,
+      "code": ".grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }",
+      "out": "每列最小 100px，容器 400px 时放 4 列（各约 100px）；容器变宽会自动增加列数，变窄会减列并自动换行。",
+      "note": "`auto-fill` 按可用空间尽可能多塞列，配合 `minmax` 实现\"响应式卡片墙\"。"
+    },
+    {
+      "id": "s2-22",
+      "no": 22,
+      "code": ".nav { position: sticky; top: 0; }",
+      "out": "页面滚动时，导航先随文档流走；当它到达距视口顶部 0px 的位置后就\"粘\"在顶部不动，直到父容器滚出视口。",
+      "note": "`sticky` 必须配 `top`（或 `bottom`）才有阈值；它受父容器边界限制。"
+    },
+    {
+      "id": "s2-23",
+      "no": 23,
+      "code": ".parent { position: relative; width: 200px; height: 100px; }\n.child { position: absolute; top: 10px; right: 10px; }",
+      "out": "child 定位在 parent 的右上角，距离上边 10px、距离右边 10px。",
+      "note": "`absolute` 相对最近的 `position: relative` 祖先定位，不是相对视口。"
+    },
+    {
+      "id": "s2-24",
+      "no": 24,
+      "code": ".a { margin-bottom: 20px; }\n.b { margin-top: 30px; }",
+      "out": "A、B 之间的间距是 30px，不是 50px。",
+      "note": "垂直相邻 `margin` 合并取较大值 `max(20, 30)`。"
+    },
+    {
+      "id": "s2-25",
+      "no": 25,
+      "code": ".box { box-sizing: border-box; width: 100px; padding: 10px; border: 5px solid #000; }",
+      "out": "盒子总宽 100px，其中内容区宽 70px（100 - 2×10 - 2×5）。",
+      "note": "`border-box` 让 `width` 包含 `padding` 和 `border`。"
+    }
+  ],
+  "interview": [
+    {
+      "id": "iv-1-0",
+      "no": 1,
+      "q": "`flex: 1` 和 `flex: auto` 有什么区别？",
+      "a": "**答：** `flex: 1` 展开是 `flex-grow: 1; flex-shrink: 1; flex-basis: 0%`；`flex: auto` 展开是 `1 1 auto`。区别全在 `flex-basis`：`0%` 表示\"先把内容宽度清零，再按比例分剩余空间\"，所以 `flex: 1` 能让多个子项**严格等宽**；`auto` 表示\"先保留内容自身宽度，再分剩余空间\"，所以子项宽窄由内容决定。\n\n- 关键区分：**`flex-basis: 0` vs `flex-basis: auto`**\n- 等宽用 `flex: 1`，不等宽用 `flex: auto`"
+    },
+    {
+      "id": "iv-2-1",
+      "no": 2,
+      "q": "`flex` 这个缩写到底包含哪三个值？分别是什么意思？",
+      "a": "**答：** `flex: <grow> <shrink> <basis>`。`flex-grow`：有剩余空间时按比例放大（默认 0）；`flex-shrink`：空间不足时按比例收缩（默认 1）；`flex-basis`：分配剩余空间之前的**基础尺寸**（默认 `auto`，即内容宽度）。三个值连起来描述了一个完整的\"先定基础、再伸缩\"的算法。\n\n- 记忆：**grow 分剩余的，shrink 扛不足的，basis 是起跑线**"
+    },
+    {
+      "id": "iv-3-2",
+      "no": 3,
+      "q": "`flex-grow` 的计算过程是怎样的？",
+      "a": "**答：** 先算出**剩余空间** = 容器宽度 − 所有子项的 `flex-basis` 之和；再把剩余空间按各子项 `flex-grow` 的**比例**分掉。两个容易记错的地方：(1) 它分的是\"剩余空间\"，不是\"容器宽度\"；(2) 基础宽度默认来自内容（`basis: auto`），所以\"都设 `flex-grow: 1` 就等宽\"是错的——内容不一样，起跑线就不一样。\n\n```css\n/* 容器 600px，三个子项各 100px，剩余 300px */\n.a { flex-grow: 1; }  /* 100 + 300*1/3 = 200px */\n.b { flex-grow: 2; }  /* 100 + 300*2/3 = 300px */\n.c { }                /* 保持 100px */\n```\n\n- 一句话：**按比例分剩余，不是按比例分整行**"
+    },
+    {
+      "id": "iv-4-3",
+      "no": 4,
+      "q": "`justify-content` 和 `align-items` 分别管什么？",
+      "a": "**答：** `justify-content` 管**主轴**（默认水平），`align-items` 管**交叉轴**（默认垂直）。主轴方向由 `flex-direction` 决定：`row` 时主轴是水平、交叉轴是垂直；`column` 时正好反过来。所以\"水平居中\"用 `justify-content: center`，\"垂直居中\"用 `align-items: center`——前提是默认的 `row`。\n\n- 关键区分：**主轴 vs 交叉轴，不是\"水平 vs 垂直\"**（方向会随 `flex-direction` 变）"
+    },
+    {
+      "id": "iv-5-4",
+      "no": 5,
+      "q": "子项设了 `width: 200px`，为什么会被压扁？",
+      "a": "**答：** 因为 `flex-shrink` 默认是 `1`，空间不足时子项**允许收缩**，你写的 `width` 只是一个\"希望值\"，不是硬约束。想让它不被压扁，要加 `flex-shrink: 0`；或者用 `min-width` 设一个底线。反过来，`flex-grow` 默认是 0，所以子项不会自动撑满——这也是为什么\"想让它填满要显式写 `flex: 1`\"。\n\n- 一句话：**`width` 是愿望，`flex-shrink` 才是硬约束**"
+    },
+    {
+      "id": "iv-6-5",
+      "no": 6,
+      "q": "`flex-wrap: wrap` 之后，怎么控制换行后的行对齐？",
+      "a": "**答：** 用 `align-content`。当子项**换行成多行**后，`align-items` 只管\"每一行内部\"的对齐，`align-content` 才管\"多行之间\"在交叉轴上的分布（类似 `justify-content` 对单行主轴的分布，只是作用在交叉轴上）。常用值：`flex-start`/`flex-end`/`center`/`space-between`/`stretch`。前提是容器在交叉轴方向有额外空间（比如有固定高度）。\n\n- 关键区分：**`align-items` 管行内，`align-content` 管行间**（仅多行时 `align-content` 才有效）"
+    },
+    {
+      "id": "iv-7-6",
+      "no": 7,
+      "q": "`gap` 在 Flex 里和 `margin` 有什么区别？",
+      "a": "**答：** `gap` 是 Flex/Grid 容器原生的间距属性，只作用于**相邻子项之间**，首尾不留空隙，也不用处理\"最后一个元素的 margin 要去掉\"这种脏活。`margin` 是元素自己的属性，相邻会叠加、还会有外边距合并的问题。现代布局里，子项之间的间距优先用 `gap`，干净且不会出现\"最后一格多出空白\"。\n\n- 一句话：**间距是\"容器的事\"，用 `gap`；不要用子项的 `margin` 去凑**"
+    },
+    {
+      "id": "iv-8-7",
+      "no": 8,
+      "q": "`align-self` 是干什么的？",
+      "a": "**答：** 它覆盖**单个子项**在交叉轴上的 `align-items`，让某个子项\"单独\"采用不同的对齐。比如父级 `align-items: center`，但某个元素想贴底，就给它 `align-self: flex-end`。它只影响自己，不影响其他兄弟。\n\n- 一句话：**`align-items` 的\"单点覆盖版\"**"
+    },
+    {
+      "id": "iv-9-8",
+      "no": 9,
+      "q": "怎么实现\"一个元素在最左、其余都在最右\"的导航栏？",
+      "a": "**答：** 两种经典写法：(1) 容器 `display: flex; justify-content: space-between`，把左、右两组分别包起来；(2) 容器 `display: flex`，给右边的元素/组设 `margin-left: auto`——`auto` 的 margin 会吸收所有剩余空间，把它推到最右。后者更常用，因为它不要求\"刚好两组\"。\n\n```css\n.nav { display: flex; align-items: center; }\n.nav .logo { font-weight: bold; }\n.nav .menu { margin-left: auto; }   /* 吸收剩余空间，推到最右 */\n```\n\n- 关键点：**`margin: auto` 在 Flex 里会吃掉剩余空间**，这是最常用的\"推挤\"技巧"
+    },
+    {
+      "id": "iv-10-9",
+      "no": 10,
+      "q": "`display: inline-flex` 和 `display: flex` 有什么区别？",
+      "a": "**答：** `flex` 让容器成为**块级**的 flex 容器（独占一行），`inline-flex` 让容器成为**行内级**的 flex 容器（可以和文字、其他行内元素排在一行）。内部子项的布局行为完全一样，区别只在容器自己对外\"像块还是像行内元素\"。\n\n- 一句话：**对内一样，对外一个是块、一个是行内**"
+    },
+    {
+      "id": "iv-11-10",
+      "no": 11,
+      "q": "`fr` 单位是什么？和 `%`、`auto` 有什么区别？",
+      "a": "**答：** `fr` 是\"剩余空间的比例单位\"。`1fr 2fr` 表示把容器里\"扣掉固定尺寸之后剩下的空间\"按 1:2 分配。和 `%` 的区别：`%` 相对的是容器总宽度，写 `50% 50%` 加个 `gap` 就溢出了；`fr` 会自动扣除 `gap` 再分。和 `auto` 的区别：`auto` 按内容大小定宽，`fr` 主动抢占剩余空间。\n\n- 一句话：**`fr` 分的是\"剩下的\"，所以配合 `gap` 不会溢出**"
+    },
+    {
+      "id": "iv-12-11",
+      "no": 12,
+      "q": "`1fr 1fr 1fr` 为什么有时候三列不等宽？",
+      "a": "**答：** 因为 `fr` 的最小尺寸默认是 `auto`（内容的最小宽度 `min-content`）。某一列放进一个超长单词或长 URL，它的 `min-content` 很大，`1fr` 无法把它压缩到等分，那一列就被撑宽了。解决：用 `minmax(0, 1fr)` 把最小尺寸压成 0，或给子项加 `min-width: 0`。\n\n```css\n.grid { grid-template-columns: 1fr 1fr 1fr; }                 /* 可能不等分 */\n.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }   /* 严格等分 */\n```\n\n- 这是 Grid 里最高频的坑之一，务必会讲 `minmax(0, 1fr)`"
+    },
+    {
+      "id": "iv-13-12",
+      "no": 13,
+      "q": "`grid-template-areas` 怎么用？有什么限制？",
+      "a": "**答：** 用一串字符串拼出一张\"布局地图\"，每个字符串是一行，字符串里用空格分隔列，用 `.` 表示空位。示例：`\"header header\" \"sidebar main\"`。限制：每行的**列数必须一致**，否则整条规则失效；要配合 `grid-template-columns`/`rows` 定尺寸，并用 `grid-area` 把子项对应到区域名。\n\n```css\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n  grid-template-areas:\n    \"header header\"\n    \"sidebar main\";\n}\n.header { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main { grid-area: main; }\n```\n\n- 核心价值：**布局结构一眼可读**，改布局只动\"地图\"不动 HTML"
+    },
+    {
+      "id": "iv-14-13",
+      "no": 14,
+      "q": "`grid-column: 1 / 3` 里的数字是什么意思？",
+      "a": "**答：** 数字是**网格线的编号**，不是列数。`1 / 3` 表示\"从第 1 条网格线到第 3 条网格线\"，所以横跨的是**第 1、2 两列**。一个 3 列网格有 4 条竖线（编号 1~4），`span 2` 等价于\"跨两列\"的另一种写法。新手最容易把 `/ 3` 理解成\"跨 3 列\"，其实是\"到第 3 条线为止\"。\n\n```css\n.a { grid-column: 1 / 3; }   /* 跨第 1、2 列 */\n.a { grid-column: span 2; }  /* 等价：跨 2 列 */\n.a { grid-column: 1 / -1; }  /* 跨到最后 */\n```\n\n- 一句话：**线编号，不是列数**；`1 / -1` 表示跨到最后"
+    },
+    {
+      "id": "iv-15-14",
+      "no": 15,
+      "q": "`repeat()` 和 `minmax()` 怎么用？",
+      "a": "**答：** `repeat(3, 1fr)` 等价于 `1fr 1fr 1fr`，用来省写重复的轨道；`repeat(auto-fill, minmax(200px, 1fr))` 是\"响应式卡片墙\"的经典配方——每列最小 200px、最大 1fr，`auto-fill` 自动算出\"能塞几列塞几列\"。`minmax(min, max)` 给轨道设一个最小值和最大值，配合 `fr` 或 `auto` 使用。\n\n```css\n/* 一行实现自适应卡片网格，无需媒体查询 */\n.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }\n```\n\n- 经典组合：**`repeat(auto-fill, minmax(200px, 1fr))` 一行实现自适应网格**"
+    },
+    {
+      "id": "iv-16-15",
+      "no": 16,
+      "q": "`justify-items` / `align-items` / `place-items` 在 Grid 里管什么？",
+      "a": "**答：** 它们控制**子项在各自单元格内**的对齐。`justify-items` 管水平（行轴），`align-items` 管垂直（列轴），`place-items` 是两者的缩写（`place-items: center` = 两个都居中）。对应到\"子项自己覆盖\"的是 `justify-self`/`align-self`/`place-self`。注意：`justify-content`/`align-content` 管的是**整组轨道在容器里的分布**，别和 `-items` 搞混。\n\n- 关键区分：**`-items` 管格子里，`-content` 管整片网格**"
+    },
+    {
+      "id": "iv-17-16",
+      "no": 17,
+      "q": "Grid 和 Flex 各自的适用场景，举个例子？",
+      "a": "**答：** Grid 适合**二维骨架**——页面整体的\"头部/侧栏/主区/底部\"这种行列交错的布局；Flex 适合**一维排列**——导航栏里的一排按钮、卡片内部的一排标签。实际项目里两者常**嵌套**：外层用 Grid 定页面骨架，每个格子内部再用 Flex 排细节。选择标准就一句：**你脑子里想的是\"行和列\"就用 Grid，想的是\"一排/一列\"就用 Flex。**\n\n- 一句话：**Grid 定骨架，Flex 排细节**"
+    },
+    {
+      "id": "iv-18-17",
+      "no": 18,
+      "q": "`subgrid` 是什么？解决什么问题？",
+      "a": "**答：** `subgrid` 让**子网格继承父网格的轨道线**，这样嵌套的网格就能和父网格的行列对齐，而不是各算各的。它解决的是\"多层嵌套时，内部元素无法对齐外层网格线\"的问题。典型场景：一列卡片，每张卡片的标题、正文、按钮要**跨卡片水平对齐**——普通 Grid 做不到，`subgrid` 让子项共享父级的列线就能对齐。\n\n- 加分点：知道它\"继承父网格轨道\"，能举\"多卡片内容对齐\"的例子"
+    },
+    {
+      "id": "iv-19-18",
+      "no": 19,
+      "q": "盒模型是什么？`content-box` 和 `border-box` 的区别？",
+      "a": "**答：** 盒模型 = `content`（内容）+ `padding`（内边距）+ `border`（边框）+ `margin`（外边距）。`content-box`（默认）下 `width` 只指内容区，总宽 = `width + padding + border`；`border-box` 下 `width` 就是总宽，`padding`/`border` 从里面扣。`border-box` 更符合直觉，所以现代工程都统一 `* { box-sizing: border-box }`。\n\n```css\n/* content-box: width 100px，总宽 = 100 + 2*10 + 2*5 = 130px */\n/* border-box:  width 100px，总宽 = 100px，内容区 = 70px */\n* { box-sizing: border-box; }\n```\n\n- 一句话：**`border-box` = 所见即所得**"
+    },
+    {
+      "id": "iv-20-19",
+      "no": 20,
+      "q": "`margin` 会合并（collapsing）是怎么回事？",
+      "a": "**答：** 垂直方向上，两个相邻块级元素的 `margin` 会**合并成较大值**而不是相加；父子之间也会合并（父无 `border`/`padding`/BFC 隔离时）。水平方向不合并。这是规范有意设计的，避免段落间距翻倍。绕过方式：一侧设 `margin`、用 `padding`、触发 BFC、或用 Flex/Grid 的 `gap`（没有合并这回事）。\n\n```css\n.a { margin-bottom: 20px; }\n.b { margin-top: 30px; }   /* 间距是 30px，不是 50px */\n/* 绕开：改用 flex 的 gap */\n.box { display: flex; flex-direction: column; gap: 50px; }\n```\n\n- 记住三个关键词：**垂直、相邻、取大值**"
+    },
+    {
+      "id": "iv-21-20",
+      "no": 21,
+      "q": "BFC 是什么？有哪些用途？",
+      "a": "**答：** BFC（Block Formatting Context，块级格式化上下文）是一个独立的渲染区域，内部布局不影响外部。用途：(1) 清除浮动、解决父容器高度塌陷；(2) 阻止父子外边距合并；(3) 隔离浮动，防止浮动元素覆盖进来。触发方式：`overflow: hidden`、`display: flow-root`、`float`、绝对定位等。其中 `display: flow-root` 是\"纯粹为触发 BFC 而生\"的现代写法。\n\n- 一句话：**BFC 是一堵\"隔断\"，把内部的浮动和 margin 关在里面**"
+    },
+    {
+      "id": "iv-22-21",
+      "no": 22,
+      "q": "清除浮动有哪些方法？哪个最好？",
+      "a": "**答：** 传统有：(1) 给父容器加 `clearfix`（伪元素 `::after` + `clear: both`）；(2) 父容器 `overflow: hidden` 触发 BFC；(3) 父容器 `display: flow-root`（最语义化、无副作用）。但最根本的答案是：**现代布局直接用 Flex/Grid，根本不需要清浮动**——浮动只在\"图文环绕\"这种它本来的用途里才用。\n\n- 加分点：能说出\"清浮动是 `float` 布局时代的补丁，现代布局已不需要\""
+    },
+    {
+      "id": "iv-23-22",
+      "no": 23,
+      "q": "`z-index` 什么时候不生效？",
+      "a": "**答：** 两种常见情况：(1) 元素 `position: static`（没定位），`z-index` 被忽略；(2) 元素所在的**层叠上下文**不同——`z-index` 只在同一层叠上下文里比较，父级一旦创建了层叠上下文（`opacity`/`transform`/`filter` 等），子元素再大的 `z-index` 也盖不过外层兄弟。另外 flex/grid 容器的直接子项即使 `static` 也能用 `z-index`，这是个例外。\n\n```css\n.modal { z-index: 9999; }            /* ❌ 没定位，被忽略 */\n.modal { position: relative; z-index: 9999; }  /* ✅ 生效 */\n.parent { transform: scale(1); }     /* ⚠️ 父级开了层叠上下文，子元素 z-index 被锁 */\n```\n\n- 排查顺序：**先看有没有定位，再看有没有被父级的层叠上下文锁住**"
+    },
+    {
+      "id": "iv-24-23",
+      "no": 24,
+      "q": "什么是层叠上下文？什么属性会意外创建它？",
+      "a": "**答：** 层叠上下文是一个\"让元素在 z 轴上独立排序\"的盒子，内部元素的 `z-index` 只在盒内比较。意外创建它的属性：`position` + 非 `auto` 的 `z-index`、`opacity < 1`、`transform`、`filter`、`perspective`、`will-change: transform` 等。最常见的坑：给父级加个 `opacity` 做动画，结果里面弹窗的 `z-index: 9999` 突然不管用了。\n\n- 一句话：**`opacity`/`transform` 会悄悄开一个层叠上下文，把你的 `z-index` 锁进去**"
+    },
+    {
+      "id": "iv-25-24",
+      "no": 25,
+      "q": "`position` 的五个值分别是什么？分别相对谁定位？",
+      "a": "**答：** `static`（默认，文档流正常排）；`relative`（相对**自身原本位置**偏移，仍占位）；`absolute`（相对**最近的定位祖先**，脱离文档流）；`fixed`（相对**视口**，脱离文档流）；`sticky`（相对/固定的混合，滚动过阈值后固定）。最容易记错的是 `absolute`——它相对的是\"最近的 `position` 不为 `static` 的祖先\"，不是视口。\n\n- 一句话：**`absolute` 找祖先，`fixed` 找视口**"
+    },
+    {
+      "id": "iv-26-25",
+      "no": 26,
+      "q": "`sticky` 的定位机制是什么？为什么不粘？",
+      "a": "**答：** `sticky` 在滚动到阈值（`top`/`bottom` 等）之前表现像 `relative`，超过阈值后像 `fixed` 粘住。但它受**父容器边界**限制——父容器滚出视口，sticky 元素也被带走。常见\"不粘\"的原因：(1) 忘了写 `top`；(2) 某个祖先设置了 `overflow: hidden/scroll/auto`，滚动的不是视口而是那个容器，sticky 相对它生效却看起来\"不粘\"；(3) 父容器高度不够。\n\n```css\n.nav { position: sticky; top: 0; }   /* 两个条件缺一不可 */\n```\n\n- 一句话：**`sticky` 需要 `top` 阈值 + 父容器不能截断滚动**"
+    },
+    {
+      "id": "iv-27-26",
+      "no": 27,
+      "q": "元素的宽高用 `width/height` 和 `min/max-width/height` 有什么区别？",
+      "a": "**答：** `width/height` 是\"目标值\"；`min/max-width/height` 是\"约束边界\"。实际渲染结果 = `clamp(min, width, max)`。这组属性在响应式里非常有用——比如 `width: 100%; max-width: 600px` 让元素\"尽量宽但不超过 600px\"，配合 `margin: auto` 就是经典的\"容器自适应 + 居中\"。\n\n- 一句话：**`width` 是目标，`min/max` 是护栏**"
+    },
+    {
+      "id": "iv-28-27",
+      "no": 28,
+      "q": "什么是移动优先（Mobile First）？为什么推荐？",
+      "a": "**答：** 移动优先 = 基础样式按最小屏幕写，再用 `min-width` 断点**从小到大**逐步增强。原因：(1) 移动端内容更精简，先写移动端等于先想清楚\"什么最核心\"；(2) `min-width` 的覆盖顺序是\"从小到大、逐层叠加\"，逻辑直观、不易漏；(3) 移动端用户占比高、网络差，把\"最简样式\"作为默认也有性能好处。\n\n- 一句话：**默认最简，逐级增强**"
+    },
+    {
+      "id": "iv-29-28",
+      "no": 29,
+      "q": "`min-width` 和 `max-width` 的媒体查询有什么区别？",
+      "a": "**答：** `@media (min-width: 768px)` 表示\"宽度 ≥ 768px 时生效\"（从小到大，移动优先）；`@media (max-width: 768px)` 表示\"宽度 ≤ 768px 时生效\"（从大到小，桌面优先）。移动优先用 `min-width`，桌面优先用 `max-width`。两者本质等价，但 `min-width` 更符合\"渐进增强\"的推荐思路。\n\n- 记住：**`min-width` 是\"至少\"，`max-width` 是\"最多\"**"
+    },
+    {
+      "id": "iv-30-29",
+      "no": 30,
+      "q": "断点（breakpoint）怎么选？有什么经验值？",
+      "a": "**答：** 断点应基于**内容什么时候\"挤了/崩了\"**来决定，而不是死记设备宽度。常见的经验值：`576px`（大手机横屏）、`768px`（平板）、`992px`（小笔记本）、`1200px`（桌面）。但这些只是起点——真正好的断点是\"把窗口慢慢拉窄，看布局在哪一步开始变难看，就在那里断\"。Tailwind 默认的 `sm/md/lg/xl/2xl` 也大致对应这几个档。\n\n```css\n@media (min-width: 768px) { ... }    /* 平板上：md */\n@media (min-width: 1024px) { ... }   /* 桌面上：lg */\n```\n\n- 一句话：**断点跟着内容走，不跟着设备清单走**"
+    },
+    {
+      "id": "iv-31-30",
+      "no": 31,
+      "q": "什么是容器查询（Container Queries）？它和媒体查询的区别？",
+      "a": "**答：** 媒体查询响应的是**视口宽度**，容器查询响应的是**某个容器的宽度**。容器查询让\"组件\"能自我感知所在容器的空间，实现真正的组件级响应：同一个卡片，放进宽的主栏是横排，放进窄的侧栏就变竖排，不用关心整个页面多宽。它解决了媒体查询最大的局限——组件无法脱离\"整页宽度\"独立适配。\n\n- 一句话：**媒体查询问\"页面多宽\"，容器查询问\"我这块多宽\"**"
+    },
+    {
+      "id": "iv-32-31",
+      "no": 32,
+      "q": "响应式布局常用哪些现代工具？",
+      "a": "**答：** 不用媒体查询就能响应的工具：(1) Flexbox 的 `flex-wrap` / `flex-grow`；(2) Grid 的 `repeat(auto-fill, minmax(200px, 1fr))`；(3) `clamp()` 让字号/尺寸平滑缩放（如 `font-size: clamp(1rem, 2vw, 2rem)`）；(4) 百分比 + `max-width`。需要\"换布局结构\"时才用媒体查询或容器查询。原则：**能用流体布局解决的，就别急着上断点。**\n\n- 一句话：**先流体、后断点**"
+    },
+    {
+      "id": "iv-33-32",
+      "no": 33,
+      "q": "`clamp()` 函数是什么？怎么用？",
+      "a": "**答：** `clamp(min, preferred, max)` 返回\"夹在 min 和 max 之间、优先取 preferred\"的值。典型用法是响应式字号：`font-size: clamp(1rem, 2vw + 0.5rem, 2rem)`，让它随视口平滑缩放、又不小于最小值、不超过最大值。配合 `vw` 就能实现\"无断点的流式排版\"。\n\n```css\nh1 { font-size: clamp(1.5rem, 4vw, 3rem); }   /* 最小 1.5rem，最大 3rem，中间随视口 */\n```\n\n- 一句话：**`clamp` = 带上下限的弹性值**"
+    },
+    {
+      "id": "iv-34-33",
+      "no": 34,
+      "q": "移动端 1px 边框、适配等问题，常用什么方案？",
+      "a": "**答：** 通常用 `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">` 让移动端按物理逻辑宽度渲染；配合 `rem` 做缩放、或直接靠响应式断点。真要谈\"适配不同尺寸\"的核心是：**布局用流体（Flex/Grid/clamp），间距和字号用相对单位（`rem`/`vw`），只在结构需要时用断点。** 避免为了\"还原某个机型\"写一堆 `max-width` 特判。\n\n- 加分点：能说出\"viewport meta\"的作用，以及\"不要为单个机型写特判\""
+    },
+    {
+      "id": "iv-35-34",
+      "no": 35,
+      "q": "图片/视频等媒体怎么做响应式？",
+      "a": "**答：** 三个层面：(1) CSS 层面，`img { max-width: 100%; height: auto; }` 让图片不超过容器宽度、按比例缩放；(2) HTML 层面，用 `srcset` + `sizes` 让浏览器按屏幕/DPR 选合适分辨率的图片；(3) 内容层面，用 `aspect-ratio` 或 `object-fit: cover` 控制裁切比例，避免图片撑破布局。现代还常用 `<picture>` 做艺术指导（不同断点用不同构图）。\n\n```css\nimg { max-width: 100%; height: auto; }        /* 底线 */\n.thumb { aspect-ratio: 16 / 9; object-fit: cover; }  /* 固定比例裁切 */\n```\n\n- 一句话：**`max-width: 100%` 是底线，`srcset` 是进阶**"
+    },
+    {
+      "id": "iv-36-35",
+      "no": 36,
+      "q": "Tailwind 的\"原子类\"是什么思路？",
+      "a": "**答：** 原子类（utility-first）= 每个 class 只做一件事（`p-4` 只管 padding、`flex` 只开 flex），通过**组合**多个 class 来表达一个元素的完整样式。它把\"写 CSS\"变成\"在 HTML 里组合设计令牌\"，好处是样式本地化、无命名负担、改一个元素只动一处；代价是 HTML 的 `class` 变长。\n\n- 一句话：**把 CSS 拆成乐高积木，在 HTML 里拼**"
+    },
+    {
+      "id": "iv-37-36",
+      "no": 37,
+      "q": "Tailwind 相比传统语义化 CSS（如 `.card`）的优劣？",
+      "a": "**答：** 原子类优势：开发快、零命名、样式不会全局污染、删代码不用找散落的 CSS。劣势：HTML 冗长、团队要背类名、样式复用靠\"抽组件\"而不是\"抽类\"。语义类优势：语义清晰、一个类承载完整外观。两者不是对错，是\"分离粒度\"不同——Tailwind 按\"设计令牌\"分离，传统按\"组件语义\"分离。工程上常用策略：**语义组件 + 内部原子类**结合。\n\n- 加分点：说出\"Tailwind 把分离维度从文件换成了设计令牌\""
+    },
+    {
+      "id": "iv-38-37",
+      "no": 38,
+      "q": "Tailwind 的 `flex-1`、`flex-auto`、`flex-none` 分别对应什么？",
+      "a": "**答：** 对应 CSS 的 `flex` 缩写：`flex-1` → `flex: 1 1 0%`（等宽伸缩）；`flex-auto` → `flex: 1 1 auto`（先内容后伸缩）；`flex-none` → `flex: none`（即 `0 0 auto`，不伸缩、保持内容宽）。它们是 Tailwind 对 `flex` 三种常用形态的封装。\n\n- 一句话：**`flex-1` 等宽、`flex-auto` 按内容、`flex-none` 定死**"
+    },
+    {
+      "id": "iv-39-38",
+      "no": 39,
+      "q": "Tailwind 怎么实现响应式？移动优先体现在哪？",
+      "a": "**答：** 通过前缀断点类，如 `md:flex`、`lg:grid-cols-3`，它们默认是 `min-width` 语义（移动优先）：基础类服务最小屏，加前缀的类在\"到达断点之后\"才叠加生效。所以 `grid-cols-1 md:grid-cols-3` 的意思是\"默认 1 列，`md`（≥768px）之后变 3 列\"——从小到大增强。\n\n- 一句话：**没前缀 = 移动端默认，有前缀 = 断点后增强**"
+    },
+    {
+      "id": "iv-40-39",
+      "no": 40,
+      "q": "Tailwind 里自定义主题/颜色怎么做？",
+      "a": "**答：** 通过 `tailwind.config.js` 的 `theme.extend` 扩展设计令牌，例如 `colors: { brand: '#3b82f6' }`，之后就能写 `bg-brand`、`text-brand`。这样把\"设计系统\"收敛到一份配置里，保证全项目颜色、间距、字号统一。也支持 `@theme`（Tailwind v4 的 CSS-first 配置）直接在 CSS 里声明令牌。\n\n- 一句话：**主题收敛到配置文件，类名才能保持一致**"
+    },
+    {
+      "id": "iv-41-40",
+      "no": 41,
+      "q": "Tailwind 里怎么写\"条件样式\"（hover、focus、根据状态切换）？",
+      "a": "**答：** 用变体（variants）前缀：`hover:bg-blue-500`、`focus:ring-2`、`dark:bg-gray-900`、`disabled:opacity-50`。它们对应 CSS 的 `:hover`、`:focus`、`.dark`、`:disabled` 等状态，编译后自动生成对应的选择器。条件样式直接写在 class 里，不用额外写 CSS 文件。\n\n- 一句话：**`状态前缀:工具类`，一个 class 表达一个状态下的样式**"
+    },
+    {
+      "id": "iv-42-41",
+      "no": 42,
+      "q": "Tailwind 的缺点/什么时候不适合用？",
+      "a": "**答：** (1) HTML 的 `class` 会很长、可读性下降；(2) 团队需要学习成本，尤其要熟悉那套类名；(3) 大量重复的样式串若不抽组件，维护会变糟；(4) 动态拼接类名（如 `bg-${color}`）不会被打包器识别，会失效——这是最常见的坑。适合\"组件化开发、有设计系统\"的团队；不适合\"要精确控制复杂 CSS、或大量动态样式\"的场景。\n\n- 加分点：说出\"动态拼接类名不会生效\"这个坑，说明你真用过"
+    },
+    {
+      "id": "iv-43-42",
+      "no": 43,
+      "q": "什么是重排（reflow）和重绘（repaint）？哪些属性触发重排？",
+      "a": "**答：** 重排 = 布局几何变化，浏览器重新计算元素的位置和尺寸，代价高；重绘 = 只重新上色，不重新布局，代价低。触发重排的属性：`width/height`、`margin/padding`、`top/left`、`display`、`font-size`、`border` 等。例外是 **`transform` 和 `opacity`**——它们走合成器，既不重排也不重绘，所以动画优先用它们。\n\n- 一句话：**动画用 `transform`/`opacity`，别用 `top`/`left`/`width`**"
+    },
+    {
+      "id": "iv-44-43",
+      "no": 44,
+      "q": "什么是\"强制同步布局\"（layout thrashing）？怎么避免？",
+      "a": "**答：** 当代码**交错**执行\"读布局尺寸\"（如 `offsetWidth`、`getBoundingClientRect`）和\"写布局样式\"时，每次读都会强制浏览器先同步完成一次布局，反复交错就反复重排，导致卡顿。避免方式：把\"读\"和\"写\"**分批**——先把所有要读的量读出来，再统一写样式。\n\n```js\n// ❌ 反例：读一次写一次，反复强制重排\nfor (const el of items) {\n  const w = el.offsetWidth;   // 读\n  el.style.width = w + 10;    // 写\n}\n// ✅ 正例：先全部读，再全部写\nconst widths = items.map(el => el.offsetWidth);\nitems.forEach((el, i) => el.style.width = widths[i] + 10);\n```\n\n- 一句话：**读归读、写归写，别穿插**"
+    },
+    {
+      "id": "iv-45-44",
+      "no": 45,
+      "q": "CSS 选择器的性能有什么讲究？",
+      "a": "**答：** 浏览器从**右往左**解析选择器，所以最右边（关键选择器）越精确越好；避免过长的后代链（`body .a .b .c`）和通配符滥用。但现实是：**选择器匹配在现代浏览器里已经非常快，除非超大页面，否则它的性能影响远小于重排/重绘**。所以优化优先级：布局抖动 > 重排频率 > 选择器。不要在写代码时为了\"选择器性能\"牺牲可读性。\n\n- 一句话：**先优化重排，选择器性能是最后才考虑的事**"
+    },
+    {
+      "id": "iv-46-45",
+      "no": 46,
+      "q": "CSS 动画用 `transition` 还是 `animation`？什么属性不能动画？",
+      "a": "**答：** `transition` 适合\"两个状态之间过渡\"（hover 变色、展开）；`animation` 适合\"关键帧、循环、多阶段\"的动画。能平滑插值的属性才适合动画：数值型（`transform`、`opacity`、`color`、`width`），而 `display`、`visibility` 这类离散属性不能平滑过渡（`display: none` 到 `block` 无法动画，可用 `opacity` + `visibility` 配合过渡替代）。\n\n- 一句话：**能插值的才动，`display` 动不了**"
+    },
+    {
+      "id": "iv-47-46",
+      "no": 47,
+      "q": "如何组织 CSS 工程？有哪些方法论？",
+      "a": "**答：** 常见有 BEM（`block__element--modifier`）、CSS Modules（局部作用域）、CSS-in-JS（样式写进 JS）、原子化（Tailwind）、以及现代原生的 `@layer` 分层。选择取决于团队规模和框架：组件化开发里 CSS Modules 和 Tailwind 最流行。核心目标都一样——**避免全局污染 + 保持可维护**。\n\n```css\n/* BEM 示例 */\n.card__title { }\n.card__title--highlight { }\n\n/* @layer 分层示例 */\n@layer reset, base, components, utilities;\n```\n\n- 加分点：知道 `@layer` 能解决\"第三方样式和我样式冲突\"的优先级问题"
+    },
+    {
+      "id": "iv-48-47",
+      "no": 48,
+      "q": "什么是 `@layer`？它解决什么问题？",
+      "a": "**答：** `@layer` 是 CSS 原生的\"层叠层\"，用来**显式声明样式的优先级层级**。后声明的层优先级更高，层内的规则统一压过层外的规则（除非层外有更高的特异性/`!important`）。它解决的是\"第三方库样式和业务样式谁盖谁\"这个老大难——你可以把 reset、第三方、组件、工具类分别放进不同 `@layer`，精确控制覆盖顺序，而不用靠\"加更长的选择器\"去硬刚。\n\n- 一句话：**`@layer` 让\"谁盖谁\"从\"拼特异性\"变成\"声明顺序\"**"
+    },
+    {
+      "id": "iv-49-48",
+      "no": 49,
+      "q": "为什么推荐用 `rem` 而不是 `px`？两者怎么换算？",
+      "a": "**答：** `rem` 是相对**根元素字号**的单位，默认 1rem = 16px。推荐 `rem` 的原因：用户可以在浏览器里改默认字号（无障碍），`rem` 会整体跟随缩放，`px` 不会；`rem` 也方便做\"整站字号缩放\"。换算：设计稿的 px ÷ 16 = rem，或项目里设 `html { font-size: 62.5% }` 让 1rem = 10px 方便心算（但会牺牲\"跟随用户字号\"的能力，需权衡）。\n\n- 一句话：**`rem` 跟着根字号走，能响应无障碍设置**"
+    },
+    {
+      "id": "iv-50-49",
+      "no": 50,
+      "q": "一份 CSS 要能上线，工程上通常还做什么？",
+      "a": "**答：** (1) **预处理器/后处理器**：Sass、PostCSS（Autoprefixer 自动加厂商前缀）；(2) **压缩**：`cssnano` 等，移除空白和冗余；(3) **去未用样式**：PurgeCSS（Tailwind 内置），删除没被用到的类；(4) **代码分割**：把首屏关键 CSS 内联（Critical CSS），其余按需加载；(5) **Lint**：Stylelint 统一规范。这些让 CSS 更小、更稳、更可维护。\n\n- 一句话：**Autoprefixer + 压缩 + 去未用 + 关键 CSS，是上线的标配**\n\n---\n\n## 二、白板手写题（Q51~Q63）\n\n面试官说\"来，手写一个布局\"的时候，**先讲思路再动手**——这是第一分。布局写对 80% 也比卡住强，边写边说话。"
+    },
+    {
+      "id": "iv-52-50",
+      "no": 52,
+      "q": "手写一个\"左右两栏、左固定 200px、右自适应\"的布局？",
+      "a": "**答：**\n\n```css\n/* Flex 写法 */\n.container { display: flex; }\n.sidebar { width: 200px; flex-shrink: 0; }  /* 别让它被压扁 */\n.main { flex: 1; }                          /* 占剩余 */\n\n/* Grid 写法 */\n.container { display: grid; grid-template-columns: 200px 1fr; }\n```\n\n- 讲清：Flex 写法里 `flex-shrink: 0` 是防止侧栏被挤压的细节，能说出是加分项"
+    },
+    {
+      "id": "iv-53-51",
+      "no": 53,
+      "q": "手写一个\"圣杯布局\"（header / 三列 / footer），用 `grid-template-areas`？",
+      "a": "**答：**\n\n```css\n.layout {\n  display: grid;\n  grid-template-columns: 200px 1fr 200px;\n  grid-template-areas:\n    \"header header header\"\n    \"nav    main   aside\"\n    \"footer footer footer\";\n}\n.header { grid-area: header; }\n.nav    { grid-area: nav; }\n.main   { grid-area: main; }\n.aside  { grid-area: aside; }\n.footer { grid-area: footer; }\n```\n\n- 讲清：每个区域名在 HTML 里用 `grid-area` 对应；改布局只改\"地图\""
+    },
+    {
+      "id": "iv-54-52",
+      "no": 54,
+      "q": "手写一个\"响应式卡片网格\"，不用媒体查询？",
+      "a": "**答：**\n\n```css\n.grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n  gap: 16px;\n}\n```\n\n- 讲清：`auto-fill` 自动算列数，`minmax(200px, 1fr)` 保证每列 ≥200px 且伸缩\n- 追问预案：\"为什么不用媒体查询？\"→ 因为列数应随容器宽度**连续自适应**，断点是离散的，写死 3 个断点不如这一个配方"
+    },
+    {
+      "id": "iv-55-53",
+      "no": 55,
+      "q": "手写一个\"sticky 导航栏\"，logo 左、菜单右？",
+      "a": "**答：**\n\n```css\n.nav {\n  position: sticky;\n  top: 0;\n  display: flex;\n  align-items: center;\n  padding: 0 16px;\n  height: 56px;\n}\n.nav .menu { margin-left: auto; }  /* 把菜单推到最右 */\n```\n\n- 讲清：`position: sticky; top: 0` 是\"粘住\"的两个必要条件\n- 加分：提一句\"父级不能有 `overflow: hidden` 截断滚动\""
+    },
+    {
+      "id": "iv-56-54",
+      "no": 56,
+      "q": "读下面代码，说渲染结果？",
+      "a": "```css\n.box { display: flex; width: 600px; }\n.a { flex: 1; }\n.b { flex: 2; }\n/* 结构：<div class=\"box\"><div class=\"a\">a</div><div class=\"b\">b</div></div> */\n```\n\n**答：** `a` 宽 200px、`b` 宽 400px。因为 `flex: 1` 和 `flex: 2` 的 `basis` 都是 0，剩余空间 600px 按 1:2 分。\n\n- 关键点：**`flex: N` 的 basis 是 0，所以按比例均分整个宽度**"
+    },
+    {
+      "id": "iv-57-55",
+      "no": 57,
+      "q": "读下面代码，说渲染结果？",
+      "a": "```css\n.grid { display: grid; grid-template-columns: 1fr 1fr; }\n.item { grid-column: span 2; }\n/* 结构：<div class=\"grid\"><div class=\"item\">a</div><div>b</div><div>c</div></div> */\n```\n\n**答：** `a` 跨满一整行（两列），`b`、`c` 在第二行各占一列。`grid-column: span 2` 表示\"横跨 2 列\"。\n\n- 关键点：**`span 2` 是跨 2 列；`1 / 3` 是\"第 1 到第 3 条线\"，也跨 2 列**"
+    },
+    {
+      "id": "iv-58-56",
+      "no": 58,
+      "q": "读下面代码，说渲染结果？",
+      "a": "```css\n.parent { height: 100px; border: 1px solid; }\n.child { margin-top: 30px; }\n/* 结构：<div class=\"parent\"><div class=\"child\">x</div></div> */\n```\n\n**答：** 子元素 `margin-top: 30px` 会\"穿透\"父元素，导致**父元素连同子元素一起被往下推 30px**（而不是\"子元素在父内部往下 30px\"）。这就是父子间的外边距合并。给父加 `overflow: hidden` 或 `display: flow-root`（触发 BFC）即可阻止。\n\n- 关键点：**父无隔离时，子的 margin 会\"漏\"到外面合并**"
+    },
+    {
+      "id": "iv-59-57",
+      "no": 59,
+      "q": "说清楚 `fr` 和 `%` 在 Grid 里的区别？",
+      "a": "**答：** 核心区别在**剩余空间**。`%` 相对容器总宽度，写 `50% 50%` 再加个 `gap` 就会溢出（100% + gap > 100%）；`fr` 是\"扣掉固定尺寸和 `gap` 之后，把剩下的按比例分\"，所以 `1fr 1fr` 加 `gap` 不会溢出。另外 `1fr` 的最小尺寸默认是内容 `min-content`，可能被长内容撑破，需要 `minmax(0, 1fr)` 兜底。\n\n```css\n/* 会溢出：两个 50% 加 gap 超过 100% */\n.bad { display: grid; grid-template-columns: 50% 50%; gap: 10px; }\n/* 不会溢出：fr 自动扣除 gap */\n.good { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }\n```\n\n- 关键区分：**`%` 算总宽，`fr` 算剩余**"
+    },
+    {
+      "id": "iv-60-58",
+      "no": 60,
+      "q": "说清楚 `align-items` 和 `align-content` 在 Flex 里的区别？",
+      "a": "**答：** 两者都作用于交叉轴，但对象不同：`align-items` 管**每一行内部**子项的对齐；`align-content` 管**多行之间**的分布（只在 `flex-wrap: wrap` 且有额外空间时生效）。单行时 `align-content` 无效；多行时，`align-items` 决定\"每行里的子项怎么摆\"，`align-content` 决定\"这一堆行在容器里怎么分布\"。\n\n```css\n/* 多行 + 高度固定时，align-content: space-between 让行与行分散开 */\n.container { display: flex; flex-wrap: wrap; height: 300px; align-content: space-between; }\n```\n\n- 关键区分：**`-items` 管行内，`-content` 管行间**"
+    },
+    {
+      "id": "iv-61-59",
+      "no": 61,
+      "q": "手写一个\"卡片组件\"：图片区、标题、描述、底部按钮，按钮永远贴底？",
+      "a": "**答：**\n\n```css\n.card { display: flex; flex-direction: column; width: 260px; }\n.card .body { flex: 1; }   /* 中间撑满，把按钮压到底部 */\n.card .btn { margin-top: 12px; }\n/* 结构：<div class=\"card\"><img><h3>标题</h3><p>描述</p><button>按钮</button></div> */\n```\n\n- 讲清：**`flex-direction: column` + 中间内容 `flex: 1`** 是\"把按钮压到底\"的标准做法\n- 加分：多个卡片并排时，外层套一个 `display: flex` 或 Grid，卡片加 `height: 100%` 让它们等高"
+    },
+    {
+      "id": "iv-62-60",
+      "no": 62,
+      "q": "手写一个\"等高列\"：三个内容长短不一的卡片，如何让它们一样高、按钮对齐？",
+      "a": "**答：**\n\n```css\n.row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }\n.card { display: flex; flex-direction: column; }\n.card .body { flex: 1; }\n```\n\n- 讲清：Grid 让三列**天然等高**（同一行的网格项高度被拉伸到行高）；卡片内部再用 Flex + `flex: 1` 把按钮压到同一水平线\n- 加分：Flex 也能做等高（`align-items: stretch` 默认就是），但\"行内对齐\"Grid 更自然"
+    },
+    {
+      "id": "iv-63-61",
+      "no": 63,
+      "q": "手写一个\"移动优先的两栏布局\"：默认单列堆叠，`md` 以上变成 200px + 自适应？",
+      "a": "**答：**\n\n```css\n.container { display: grid; grid-template-columns: 1fr; }   /* 默认单列 */\n@media (min-width: 768px) {\n  .container { grid-template-columns: 200px 1fr; }          /* 桌面两栏 */\n}\n```\n\n- 讲清：**移动优先 = 默认写最小屏，`min-width` 从小到大增强**\n- 加分：不用媒体查询的替代写法——`grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))` 也能实现类似效果，但语义不同（那是\"内容自适应\"，这是\"固定侧栏\"）\n\n---\n\n## 三、一页速查表"
+    }
+  ]
+}

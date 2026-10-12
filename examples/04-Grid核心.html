@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 04 章示例 · Grid 核心：fr / areas / 隐式轨道 / 对齐</title>
+<style>
+  /* ---------- 示例页自身样式（用 Grid 排布演示面板） ---------- */
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    margin: 0; padding: 32px; background: #f6f7f9; color: #1a1d23;
+  }
+  h1 { font-size: 22px; }
+  .sub { font-size: 14px; color: #666; margin-bottom: 24px; }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+  }
+  .panel {
+    background: #fff; border: 1px solid #e4e7ee; border-radius: 10px; padding: 20px;
+  }
+  .panel h2 { margin: 0 0 4px; font-size: 16px; }
+  .panel .note { font-size: 13px; color: #666; margin: 10px 0 0; line-height: 1.6; }
+  .panel code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .grid-item {
+    display: flex; align-items: center; justify-content: center;
+    background: #2f6fed; color: #fff; border-radius: 6px; font-size: 14px;
+  }
+
+  /* ---------- 演示 1：fr 均分 vs 百分比溢出 ---------- */
+  .demo-fr-bad {
+    display: grid;
+    grid-template-columns: 33.33% 33.33% 33.33%;   /* ❌ 百分比硬凑 */
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .demo-fr-good {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);          /* ✅ fr 均分 */
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .demo-fr-bad .grid-item, .demo-fr-good .grid-item { height: 60px; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
+  .tag.bad  { background: #fdecec; color: #c0392b; }
+  .tag.good { background: #e8f7ee; color: #1e8449; }
+
+  /* ---------- 演示 2：grid-template-areas 页面骨架 ---------- */
+  .page {
+    display: grid;
+    grid-template-columns: 140px 1fr 120px;
+    grid-template-rows: 44px 1fr 44px;
+    grid-template-areas:
+      "header header header"
+      "nav    main   aside"
+      "footer footer footer";
+    gap: 8px;
+    height: 260px;
+    margin-top: 12px;
+  }
+  .page > div { display: flex; align-items: center; justify-content: center; color: #fff; border-radius: 6px; font-size: 13px; }
+  .page .hd { grid-area: header; background: #2f6fed; }
+  .page .nav { grid-area: nav; background: #12a150; }
+  .page .main { grid-area: main; background: #f39c12; }
+  .page .aside { grid-area: aside; background: #9b59b6; }
+  .page .ft { grid-area: footer; background: #7f8c8d; }
+  .areas-code {
+    display: block; margin-top: 10px; background: #1e1e2e; color: #cdd6f4;
+    padding: 12px; border-radius: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; line-height: 1.7;
+  }
+
+  /* ---------- 演示 3：隐式轨道 grid-auto-rows ---------- */
+  .implicit-bad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);   /* 只声明 3 列，行隐式生成 */
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .implicit-good {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 56px;                     /* ✅ 隐式行统一高度 */
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .implicit-bad .grid-item, .implicit-good .grid-item { min-height: 56px; }
+  .implicit-bad .grid-item.tall { min-height: 96px; }   /* 故意撑高一个，制造参差 */
+
+  /* ---------- 演示 4：对齐 place-items ---------- */
+  .align-box {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 90px;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .align-box.center { place-items: center; }
+  .align-box .inner {
+    width: 60px; height: 40px; background: #2f6fed; color: #fff;
+    display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 12px;
+  }
+</style>
+</head>
+<body>
+  <h1>第 04 章 · Grid 核心示例</h1>
+  <p class="sub">四个演示对应正文 4.3 / 4.5 / 4.6 / 4.7 节。你可以改代码里的注释（❌/✅）观察现象变化。</p>
+
+  <div class="demo-grid">
+
+    <!-- 演示 1：fr 均分 vs 百分比溢出 -->
+    <div class="panel">
+      <h2>① <code>1fr</code> 均分 vs <code>33.33%</code> 溢出</h2>
+      <p class="note">同样的"三列等宽 + 间距"，百分比会横向溢出（第三列换行），<code>fr</code> 先把 gap 扣掉再均分，正好贴边。</p>
+      <span class="tag bad">❌ grid-template-columns: 33.33% 33.33% 33.33%</span>
+      <div class="demo-fr-bad">
+        <div class="grid-item">列1</div>
+        <div class="grid-item">列2</div>
+        <div class="grid-item">列3</div>
+      </div>
+      <span class="tag good" style="margin-top: 14px;">✅ repeat(3, 1fr)</span>
+      <div class="demo-fr-good">
+        <div class="grid-item">列1</div>
+        <div class="grid-item">列2</div>
+        <div class="grid-item">列3</div>
+      </div>
+      <p class="note">红线框是容器。上面的反例里，三列各占容器 33.33%，再加上两个 12px 的 gap，总宽超过 100%，第三列被挤到下一行。</p>
+    </div>
+
+    <!-- 演示 2：grid-template-areas -->
+    <div class="panel">
+      <h2>② <code>grid-template-areas</code> 画页面骨架</h2>
+      <p class="note">用 ASCII 字符串直接"画"出布局。同一名字重复出现 = 跨列，句点 = 空位。</p>
+      <div class="page">
+        <div class="hd">header</div>
+        <div class="nav">nav</div>
+        <div class="main">main</div>
+        <div class="aside">aside</div>
+        <div class="ft">footer</div>
+      </div>
+      <code class="areas-code">grid-template-areas:<br>  "header header header"<br>  "nav    main   aside"<br>  "footer footer footer";</code>
+      <p class="note">第一行是横跨三列的 header，第二行 nav/main/aside 三列，第三行 footer 横跨三列。改这张图，布局就变。</p>
+    </div>
+
+    <!-- 演示 3：隐式轨道 -->
+    <div class="panel">
+      <h2>③ 隐式轨道：<code>grid-auto-rows</code></h2>
+      <p class="note">只声明了 3 列、没声明行时，多出来的行是"隐式"的，默认高度 <code>auto</code>（被内容撑），行高参差。</p>
+      <span class="tag bad">❌ 没设 grid-auto-rows（隐式行高 auto）</span>
+      <div class="implicit-bad">
+        <div class="grid-item">1</div>
+        <div class="grid-item">2</div>
+        <div class="grid-item">3</div>
+        <div class="grid-item tall">4（高）</div>
+        <div class="grid-item">5</div>
+        <div class="grid-item">6</div>
+      </div>
+      <span class="tag good" style="margin-top: 14px;">✅ grid-auto-rows: 56px</span>
+      <div class="implicit-good">
+        <div class="grid-item">1</div>
+        <div class="grid-item">2</div>
+        <div class="grid-item">3</div>
+        <div class="grid-item">4</div>
+        <div class="grid-item">5</div>
+        <div class="grid-item">6</div>
+      </div>
+      <p class="note">上面的反例里，第二行的 4 号内容更高，把隐式行撑到 96px，而第一行只有 56px，两行参差；下面的正例用 <code>grid-auto-rows: 56px</code> 统一了隐式行高，整整齐齐。</p>
+    </div>
+
+    <!-- 演示 4：对齐 -->
+    <div class="panel">
+      <h2>④ 对齐：<code>place-items: center</code></h2>
+      <p class="note">默认 <code>stretch</code> 会把元素拉满格子；写死宽高后它失效，元素退回左上角。<code>place-items: center</code> 让元素在格子里居中。</p>
+      <span class="tag bad">❌ 默认 stretch，元素写死宽高 → 缩在左上角</span>
+      <div class="align-box">
+        <div class="inner">1</div>
+        <div class="inner">2</div>
+        <div class="inner">3</div>
+        <div class="inner">4</div>
+      </div>
+      <span class="tag good" style="margin-top: 14px;">✅ place-items: center</span>
+      <div class="align-box center">
+        <div class="inner">1</div>
+        <div class="inner">2</div>
+        <div class="inner">3</div>
+        <div class="inner">4</div>
+      </div>
+      <p class="note">上面的反例：元素写了固定 <code>60px × 40px</code>，stretch 拉不动，回到 <code>start</code>（左上角）。下面正例显式居中。</p>
+    </div>
+
+  </div>
+</body>
+</html>

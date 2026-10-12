@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>a3 · sticky 导航栏</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; color: #1a1d23; background: #f6f7f9; }
+
+  /* ---------- 核心答案：sticky + flex 推挤 ---------- */
+  .nav {
+    position: sticky;   /* 关键一：粘住 */
+    top: 0;             /* 关键二：阈值 */
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 16px;
+    background: #1a1d23;   /* 不透明背景，避免内容透出来 */
+    color: #fff;
+  }
+  .nav .logo { font-weight: bold; font-size: 16px; }
+  .nav .menu { margin-left: auto; }   /* 关键三：把菜单推到最右 */
+  .nav .menu a { color: #fff; text-decoration: none; margin-left: 20px; font-size: 14px; }
+
+  .content { padding: 24px; }
+  .content p { max-width: 640px; line-height: 1.8; color: #555; }
+</style>
+</head>
+<body>
+  <header class="nav">
+    <span class="logo">MySite</span>
+    <nav class="menu">
+      <a href="#">首页</a>
+      <a href="#">产品</a>
+      <a href="#">关于</a>
+      <a href="#">联系</a>
+    </nav>
+  </header>
+
+  <main class="content">
+    <h1>往下滚，看导航栏粘在顶部</h1>
+    <p>布局要点：<code>.nav</code> 用了 <code>position: sticky; top: 0</code>——两个条件缺一不可，缺了 <code>top</code> 就不会粘；某个祖先有 <code>overflow: hidden</code> 也会失效（这里没有，所以正常）。</p>
+    <p>「logo 左、菜单右」靠的是 <code>.menu { margin-left: auto }</code>——auto 的 margin 会吸收剩余空间，把菜单推到最右。也可以用 <code>justify-content: space-between</code>，但 <code>margin-left: auto</code> 不要求刚好两组，更通用。</p>
+    <p>下面是重复的占位内容，用来制造滚动。</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+    <p>段落占位……段落占位……段落占位……</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 03 章示例 · Flexbox 实战模式与坑</title>
+<style>
+  /* ---------- 示例页自身布局 ---------- */
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    margin: 0; padding: 32px; background: #f6f7f9; color: #1a1d23;
+    line-height: 1.6;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .subtitle { font-size: 14px; color: #666; margin: 0 0 24px; }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+  }
+  .panel {
+    background: #fff; border: 1px solid #e4e7ee; border-radius: 10px; padding: 20px;
+    display: flex; flex-direction: column;
+  }
+  .panel h2 { margin: 0 0 4px; font-size: 16px; }
+  .panel .desc { font-size: 13px; color: #666; margin: 0 0 16px; }
+  .note { font-size: 12px; color: #888; margin: 10px 0 0; }
+  .tag { font-size: 12px; color: #555; margin-bottom: 4px; }
+  .tag code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+
+  /* ---------- 演示 1：导航栏 logo 左 + 菜单右 ---------- */
+  .navbar {
+    display: flex; align-items: center;
+    height: 52px; padding: 0 16px;
+    background: #1a1d23; border-radius: 8px; color: #fff;
+  }
+  .navbar .logo { font-weight: bold; font-size: 15px; }
+  .navbar .menu { display: flex; gap: 16px; margin-left: auto; font-size: 13px; color: #cbd5e1; }
+  .navbar .login { margin-left: 24px; font-size: 13px; background: #2f6fed; padding: 4px 12px; border-radius: 6px; }
+
+  /* ---------- 演示 2：搜索框导航栏 ---------- */
+  .navbar-search {
+    display: flex; align-items: center; gap: 12px;
+    height: 52px; padding: 0 16px;
+    background: #1a1d23; border-radius: 8px; color: #fff;
+  }
+  .navbar-search .logo { font-weight: bold; font-size: 15px; }
+  .navbar-search input {
+    flex: 1; min-width: 0;              /* flex:1 撑满，min-width:0 防撑爆 */
+    height: 34px; padding: 0 14px; border: none; border-radius: 17px;
+    font-size: 13px; outline: none;
+  }
+  .navbar-search .btn { font-size: 13px; background: #2f6fed; padding: 4px 12px; border-radius: 6px; }
+
+  /* ---------- 演示 3：卡片流 ---------- */
+  .cards {
+    display: flex; flex-wrap: wrap; gap: 12px;
+  }
+  .cards .card {
+    flex: 1 1 120px;                    /* 理想 120px，可伸缩铺满 */
+    padding: 16px; background: #e8f1ff; border: 1px solid #bfdbfe;
+    border-radius: 8px; font-size: 13px; text-align: center;
+  }
+
+  /* ---------- 演示 4：卡片流最后一行被拉宽的坑（反例） vs Grid（正例） ---------- */
+  .cards-bad { display: flex; flex-wrap: wrap; gap: 12px; }
+  .cards-bad .card { flex: 1 1 120px; padding: 12px; background: #fdecec; border: 1px solid #f5c6c6; border-radius: 8px; font-size: 12px; text-align: center; }
+  .cards-good { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+  .cards-good .card { padding: 12px; background: #e8f7ee; border: 1px solid #bfe3c8; border-radius: 8px; font-size: 12px; text-align: center; }
+
+  /* ---------- 演示 5：圣杯布局 ---------- */
+  .layout { display: flex; flex-direction: column; height: 320px; border: 2px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+  .layout .header, .layout .footer {
+    height: 44px; background: #1a1d23; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .layout .body { display: flex; flex: 1; }
+  .layout .aside { width: 90px; background: #e8f1ff; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #555; }
+  .layout .aside.right { width: 110px; background: #fff7ed; }
+  .layout .main { flex: 1; padding: 12px; font-size: 12px; color: #555; background: #fff; }
+
+  /* ---------- 演示 6：底部固定（反例 vs 正例） ---------- */
+  .page-box { height: 200px; border: 2px solid #cbd5e1; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+  .page-box .content { padding: 12px; font-size: 12px; color: #555; }
+  .page-box .footer { height: 40px; background: #1a1d23; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .page-box .footer.stick { margin-top: auto; }   /* 关键：贴底 */
+
+  /* ---------- 演示 7：min-width: 0 的坑（反例 vs 正例） ---------- */
+  .minrow { display: flex; align-items: center; gap: 8px; width: 100%; height: 56px; border: 2px solid #e4e7ee; border-radius: 6px; padding: 0 8px; }
+  .minrow .avatar { width: 36px; height: 36px; flex-shrink: 0; background: #2f6fed; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .minrow .text { flex: 1; font-size: 12px; color: #333; }
+  .minrow .text.bad { min-width: auto; }                    /* ❌ 默认，长文本溢出 */
+  .minrow .text.good {
+    min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;  /* ✅ 省略号 */
+  }
+</style>
+</head>
+<body>
+  <h1>第 03 章 · Flexbox 实战模式与坑</h1>
+  <p class="subtitle">下面每个面板对应正文的一个实战模式或一个坑。红框/红块通常是反例（❌），绿框/绿块是正例（✅）。</p>
+
+  <div class="demo-grid">
+
+    <!-- ============ 演示 1：导航栏 ============ -->
+    <div class="panel" style="grid-column: span 2;">
+      <h2>① 导航栏：logo 左 + 菜单右（margin-left: auto）</h2>
+      <p class="desc">不给容器设 <code>justify-content</code>，只给菜单加 <code>margin-left: auto</code>，它就被推到右边。</p>
+      <div class="navbar">
+        <div class="logo">LOGO</div>
+        <div class="menu"><span>首页</span><span>产品</span><span>关于</span></div>
+        <div class="login">登录</div>
+      </div>
+      <p class="note">关键在 <code>.menu { margin-left: auto }</code>——菜单吃掉中间所有剩余空间被推到最右，登录按钮再用固定 <code>margin-left: 24px</code> 和菜单保持距离。</p>
+    </div>
+
+    <!-- ============ 演示 2：搜索框导航栏 ============ -->
+    <div class="panel" style="grid-column: span 2;">
+      <h2>② 导航栏变体：搜索框吃满中间（flex: 1 + min-width: 0）</h2>
+      <p class="desc">logo 固定、搜索框 <code>flex: 1</code> 撑满中间、按钮固定。输入超长内容试试，搜索框不会被撑爆。</p>
+      <div class="navbar-search">
+        <div class="logo">LOGO</div>
+        <input type="text" placeholder="搜索…（输入超长内容不会撑破布局）">
+        <div class="btn">登录</div>
+      </div>
+      <p class="note">搜索框是 flex item，默认 <code>min-width: auto</code> 会被长内容撑爆、挤出按钮。这里加了 <code>min-width: 0</code> 才允许它收缩。</p>
+    </div>
+
+    <!-- ============ 演示 3：卡片流 ============ -->
+    <div class="panel">
+      <h2>③ 卡片流：flex-wrap + flex: 1 1 120px</h2>
+      <p class="desc">卡片自动换行、铺满每行。拖动浏览器窗口改变宽度，观察一行放几张会自动变化。</p>
+      <div class="cards">
+        <div class="card">卡片 1</div>
+        <div class="card">卡片 2</div>
+        <div class="card">卡片 3</div>
+        <div class="card">卡片 4</div>
+        <div class="card">卡片 5</div>
+        <div class="card">卡片 6</div>
+      </div>
+      <p class="note"><code>flex: 1 1 120px</code>：basis 120px 是"理想宽度"，grow 铺满整行、shrink 塞满。一行放几张由浏览器按实际宽度算，不用写媒体查询。</p>
+    </div>
+
+    <!-- ============ 演示 4：卡片流最后一行坑 ============ -->
+    <div class="panel">
+      <h2>④ 卡片流最后一行：Flex 的坑 vs Grid 的正解</h2>
+      <p class="desc">7 张卡，每行 3 张。上面（红）用 Flex，最后一张被拉宽；下面（绿）用 Grid，最后一张保持列宽。</p>
+      <div class="tag">❌ Flex：最后一行孤卡被 <code>flex-grow</code> 拉宽</div>
+      <div class="cards-bad">
+        <div class="card">1</div><div class="card">2</div><div class="card">3</div>
+        <div class="card">4</div><div class="card">5</div><div class="card">6</div>
+        <div class="card">7</div>
+      </div>
+      <div class="tag" style="margin-top:14px;">✅ Grid：最后一行不满也不散、不拉宽</div>
+      <div class="cards-good">
+        <div class="card">1</div><div class="card">2</div><div class="card">3</div>
+        <div class="card">4</div><div class="card">5</div><div class="card">6</div>
+        <div class="card">7</div>
+      </div>
+      <p class="note">这是 Flex"一维本质"的必然：它没法让最后一行孤卡保持和其他行一致的宽度。Grid 的 <code>repeat(auto-fill, minmax(120px, 1fr))</code> 天然规避。</p>
+    </div>
+
+    <!-- ============ 演示 5：圣杯布局 ============ -->
+    <div class="panel" style="grid-column: span 2;">
+      <h2>⑤ 圣杯布局：header + 三列 + footer</h2>
+      <p class="desc">外层 <code>column</code> 撑起纵向结构，内层 <code>row</code> 撑起三列。两侧固定、中间 <code>flex: 1</code> 自适应。</p>
+      <div class="layout">
+        <div class="header">Header（固定高度）</div>
+        <div class="body">
+          <div class="aside">左侧栏<br>90px</div>
+          <div class="main">主内容（flex: 1 自适应）</div>
+          <div class="aside right">右侧栏<br>110px</div>
+        </div>
+        <div class="footer">Footer（固定高度）</div>
+      </div>
+      <p class="note">核心：<code>.body { display: flex; flex: 1 }</code> 吃掉中间高度；<code>.main { flex: 1 }</code>（basis 0%）吃掉中间宽度。中间列用 <code>flex: 1</code> 而非 <code>flex: auto</code>，防止内容把它撑大。</p>
+    </div>
+
+    <!-- ============ 演示 6：底部固定 ============ -->
+    <div class="panel">
+      <h2>⑥ 底部固定：margin-top: auto 贴底</h2>
+      <p class="desc">两个同高度容器，内容都不足一屏。上面（红）footer 悬在半空；下面（绿）footer 贴到底。</p>
+
+      <div class="tag">❌ 没有 <code>margin-top: auto</code>：footer 悬在内容下方</div>
+      <div class="page-box">
+        <div class="content">页面内容很少，撑不满容器高度。</div>
+        <div class="footer">我是 footer</div>
+      </div>
+
+      <div class="tag" style="margin-top:14px;">✅ 加了 <code>margin-top: auto</code>：footer 贴到底</div>
+      <div class="page-box">
+        <div class="content">页面内容很少，撑不满容器高度。</div>
+        <div class="footer stick">我是 footer</div>
+      </div>
+
+      <p class="note">关键：<code>.footer { margin-top: auto }</code> 吃掉它上方所有剩余空间，把它推到容器底部。外层配 <code>flex-direction: column</code> 即可。</p>
+    </div>
+
+    <!-- ============ 演示 7：min-width: 0 的坑 ============ -->
+    <div class="panel">
+      <h2>⑦ min-width: 0：Flex 里最容易踩的坑</h2>
+      <p class="desc">头像固定，右侧 <code>flex: 1</code> 放超长文本。上面（红）文本溢出边框；下面（绿）正确省略。</p>
+
+      <div class="tag">❌ 默认 <code>min-width: auto</code>：长文本撑爆、溢出</div>
+      <div class="minrow">
+        <div class="avatar">头像</div>
+        <div class="text bad">这是一段超级超级超级超级超级超级超级超级超级超级长的不会换行的文字aaaaaaaaaaaaaaaaaaaaaa</div>
+      </div>
+
+      <div class="tag" style="margin-top:14px;">✅ 加了 <code>min-width: 0</code> + 省略号四件套</div>
+      <div class="minrow">
+        <div class="avatar">头像</div>
+        <div class="text good">这是一段超级超级超级超级超级超级超级超级超级超级长的不会换行的文字aaaaaaaaaaaaaaaaaaaaaa</div>
+      </div>
+
+      <p class="note">根因：flex item 默认 <code>min-width: auto</code>，禁止缩到比内容更小，于是 <code>flex: 1</code> 想收缩也缩不动。正解是 <code>min-width: 0</code>（配合 <code>white-space: nowrap; overflow: hidden; text-overflow: ellipsis</code>）。</p>
+    </div>
+
+  </div>
+</body>
+</html>

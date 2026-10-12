@@ -1,0 +1,5 @@
+# 依赖
+node_modules/
+
+# 构建产物（npm run build 生成，不提交；README 要求用户自己跑构建）
+dist/

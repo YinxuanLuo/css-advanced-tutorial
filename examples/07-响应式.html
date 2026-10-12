@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 07 章示例 · 响应式布局最佳实践（拖动窗口观察）</title>
+<style>
+  /* ===== 示例页自身样式 ===== */
+  :root {
+    --bg: #f6f7f9;
+    --panel: #fff;
+    --border: #e4e7ee;
+    --text: #1a1d23;
+    --muted: #666;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    margin: 0;
+    padding: 24px;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .lead { font-size: 13px; color: var(--muted); margin: 0 0 20px; max-width: 800px; }
+
+  /* ===== 顶部状态栏：实时宽度 + 断点 ===== */
+  .statusbar {
+    position: sticky;
+    top: 12px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #1f2937;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+  }
+  .statusbar .label { font-size: 12px; color: #9ca3af; }
+  .statusbar .value { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bp-tags { display: flex; gap: 8px; }
+  .bp-tags span {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #374151;
+    color: #9ca3af;
+    transition: all .15s;
+  }
+  .bp-tags span.on { background: #2f6fed; color: #fff; font-weight: 600; }
+  .hint { font-size: 12px; color: #9ca3af; margin-left: auto; }
+
+  /* ===== 通用面板 ===== */
+  .section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .section h2 { margin: 0 0 4px; font-size: 16px; }
+  .section .desc { font-size: 13px; color: var(--muted); margin: 0 0 16px; }
+
+  /* ===== 演示 1：媒体查询断点 ===== */
+  .resp-grid {
+    display: grid;
+    grid-template-columns: 1fr;           /* 默认：手机单列 */
+    gap: 12px;
+    transition: grid-template-columns .2s;
+  }
+  .resp-grid .cell {
+    height: 70px;
+    background: #93c5fd;
+    color: #1e3a8a;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  @media (min-width: 640px) {
+    .resp-grid { grid-template-columns: repeat(2, 1fr); }  /* 平板：两列 */
+  }
+  @media (min-width: 1024px) {
+    .resp-grid { grid-template-columns: repeat(3, 1fr); }  /* 桌面：三列 */
+  }
+  .resp-note {
+    margin-top: 12px;
+    font-size: 12.5px;
+    color: var(--muted);
+    background: #f4f6fb;
+    padding: 10px 12px;
+    border-radius: 6px;
+  }
+  .resp-note code { background: #e8ecf5; padding: 1px 5px; border-radius: 3px; }
+
+  /* ===== 演示 2：clamp 流体字体 ===== */
+  .fluid-title {
+    font-size: clamp(20px, 4vw + 8px, 52px);  /* 随宽度平滑变，无断点跳变 */
+    margin: 0 0 6px;
+    line-height: 1.2;
+    word-break: break-all;
+  }
+  .fluid-sub { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+  .fluid-scale {
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #60a5fa, #34d399, #fbbf24);
+    margin-bottom: 12px;
+  }
+  .fluid-meta { font-size: 12.5px; color: var(--muted); }
+  .fluid-meta b { color: var(--text); }
+  .compare-fonts { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 8px; }
+  .compare-fonts .fixed { font-size: 24px; color: #c0392b; }
+  .compare-fonts .fluid { font-size: clamp(20px, 4vw + 8px, 52px); color: #12a150; }
+
+  /* ===== 演示 3：容器查询 ===== */
+  .cq-row { display: flex; gap: 24px; flex-wrap: wrap; }
+  /* 宽容器 */
+  .cq-wide {
+    container-type: inline-size;
+    width: 100%;
+    max-width: 520px;
+    border: 2px dashed #93c5fd;
+    border-radius: 8px;
+    padding: 8px;
+    flex: 1 1 320px;
+  }
+  /* 窄容器 */
+  .cq-narrow {
+    container-type: inline-size;
+    width: 240px;
+    border: 2px dashed #f9a8d4;
+    border-radius: 8px;
+    padding: 8px;
+    flex: 0 0 240px;
+  }
+  .cq-caption { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+  /* 同一个组件：默认竖排，容器 ≥ 400px 时横排 */
+  .cq-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+  }
+  .cq-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #2f6fed;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .cq-body { font-size: 12.5px; color: #475569; }
+  .cq-body b { display: block; color: var(--text); margin-bottom: 2px; }
+  @container (min-width: 400px) {
+    .cq-card { flex-direction: row; align-items: center; }
+  }
+
+  /* ===== 演示 4：dvh 全屏 ===== */
+  .dvh-box {
+    height: 100vh;   /* 兜底 */
+    height: 100dvh;  /* 移动端地址栏伸缩也不被遮 */
+    background: linear-gradient(135deg, #2f6fed, #12a150);
+    color: #fff;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .dvh-box .big { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .dvh-box .small { font-size: 13px; opacity: .9; max-width: 460px; }
+</style>
+</head>
+<body>
+  <h1>第 07 章示例 · 响应式布局最佳实践</h1>
+  <p class="lead">
+    拖动浏览器窗口的<b>右边缘</b>（或缩放窗口宽度）观察下面的变化。
+    演示 1 是「断点式」响应（啪地切换列数），演示 2 是「流式」响应（字号平滑变、无跳变），
+    演示 3 是「容器查询」（组件随自己所在容器的宽度自适应，而不是窗口宽度）。
+  </p>
+
+  <!-- 顶部状态栏 -->
+  <div class="statusbar">
+    <div>
+      <div class="label">当前窗口宽度</div>
+      <div class="value" id="width-value">--</div>
+    </div>
+    <div>
+      <div class="label">当前断点</div>
+      <div class="bp-tags">
+        <span id="bp-mobile">&lt; 640 手机</span>
+        <span id="bp-tablet">640~1024 平板</span>
+        <span id="bp-desktop">&gt; 1024 桌面</span>
+      </div>
+    </div>
+    <div class="hint">← 拖动窗口右边缘试试</div>
+  </div>
+
+  <!-- 演示 1：媒体查询断点 -->
+  <div class="section">
+    <h2>演示 1 · 媒体查询断点（移动优先，min-width）</h2>
+    <p class="desc">下面三列网格是<b>移动优先</b>写法：默认单列，<code>min-width: 640px</code> 变两列，<code>min-width: 1024px</code> 变三列。拖动窗口，观察列数「啪」地切换。</p>
+    <div class="resp-grid">
+      <div class="cell">1</div>
+      <div class="cell">2</div>
+      <div class="cell">3</div>
+      <div class="cell">4</div>
+      <div class="cell">5</div>
+      <div class="cell">6</div>
+    </div>
+    <div class="resp-note">
+      对应的 CSS（移动优先）：<code>.resp-grid { grid-template-columns: 1fr }</code>
+      → <code>@media (min-width: 640px) { 2 列 }</code>
+      → <code>@media (min-width: 1024px) { 3 列 }</code>。断点是「内容破了」的宽度，不是设备型号。
+    </div>
+  </div>
+
+  <!-- 演示 2：clamp 流体字体 -->
+  <div class="section">
+    <h2>演示 2 · <code>clamp()</code> 流体字体（流式，无断点）</h2>
+    <p class="desc">这个标题的字号是 <code>clamp(20px, 4vw + 8px, 52px)</code>——随窗口宽度<b>平滑</b>变化，被 20px 和 52px 上下限兜住，<b>没有任何断点跳变</b>。</p>
+    <div class="fluid-title" id="fluid-title">让文字随宽度流动</div>
+    <div class="fluid-sub">下面的渐变条表示宽度范围：左端（窄屏）→ 右端（宽屏）</div>
+    <div class="fluid-scale"></div>
+    <div class="fluid-meta">当前字号：<b id="font-value">--</b></div>
+    <div class="compare-fonts">
+      <span class="fixed">固定 24px（不随宽度变）</span>
+      <span class="fluid">流体 clamp()（随宽度变）</span>
+    </div>
+  </div>
+
+  <!-- 演示 3：容器查询 -->
+  <div class="section">
+    <h2>演示 3 · 容器查询 <code>@container</code>（组件自适应所在容器）</h2>
+    <p class="desc">
+      下面两个虚线框里是<b>同一个</b> <code>.cq-card</code> 组件。蓝色框宽约 500px，粉色框宽 240px。
+      组件默认竖排（头像在上），<code>@container (min-width: 400px)</code> 让它在「容器 ≥ 400px」时横排。
+      <b>注意：组件变不变，取决于它待的容器宽度，而不是窗口宽度</b>——这就是容器查询和媒体查询的区别。
+    </p>
+    <div class="cq-row">
+      <div class="cq-wide">
+        <p class="cq-caption">宽容器（约 500px）→ 组件自动横排</p>
+        <div class="cq-card">
+          <div class="cq-avatar">头像</div>
+          <div class="cq-body"><b>张三 · 产品经理</b>这是一段评论内容。容器够宽（≥400px），组件自动变成「头像在左、文字在右」的横排。</div>
+        </div>
+      </div>
+      <div class="cq-narrow">
+        <p class="cq-caption">窄容器（240px）→ 组件自动竖排</p>
+        <div class="cq-card">
+          <div class="cq-avatar">头像</div>
+          <div class="cq-body"><b>李四 · 工程师</b>容器很窄（&lt;400px），同一个组件自动变成「头像在上、文字在下」的竖排。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 演示 4：dvh -->
+  <div class="section">
+    <h2>演示 4 · <code>dvh</code> 动态视口高度</h2>
+    <p class="desc">
+      下面这个彩色块用 <code>height: 100dvh</code>（兜底 <code>100vh</code>）。
+      在<b>手机浏览器</b>上打开这个页面，滚动时地址栏伸缩，<code>dvh</code> 会让这个块跟随实际可视高度，
+      而 <code>100vh</code> 会在地址栏展开时被遮住底部。
+    </p>
+    <div class="dvh-box">
+      <div class="big">height: 100dvh</div>
+      <div class="small">这个块的高度 = 当前「真实可见」的视口高度。在桌面浏览器上拖动窗口高度，它也会跟着变；在手机浏览器上，它随地址栏伸缩而变。</div>
+    </div>
+  </div>
+
+<script>
+  (function () {
+    var widthEl = document.getElementById('width-value');
+    var fontEl = document.getElementById('font-value');
+    var bpMobile = document.getElementById('bp-mobile');
+    var bpTablet = document.getElementById('bp-tablet');
+    var bpDesktop = document.getElementById('bp-desktop');
+    var fluidTitle = document.getElementById('fluid-title');
+
+    function update() {
+      var w = window.innerWidth;
+      widthEl.textContent = w + ' px';
+
+      // 断点判断（与演示 1 的 CSS 断点保持一致）
+      bpMobile.classList.toggle('on', w < 640);
+      bpTablet.classList.toggle('on', w >= 640 && w < 1024);
+      bpDesktop.classList.toggle('on', w >= 1024);
+
+      // 读取流体标题的实际字号（clamp 计算后的结果）
+      if (fluidTitle) {
+        fontEl.textContent = getComputedStyle(fluidTitle).fontSize;
+      }
+    }
+
+    update();
+    window.addEventListener('resize', update);
+    // 页面加载完成后字体可能还没算好，再更新一次
+    window.addEventListener('load', update);
+  })();
+</script>
+</body>
+</html>

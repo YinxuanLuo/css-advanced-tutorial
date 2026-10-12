@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 01 章示例 · 布局心智模型</title>
+<style>
+  /* ---------- 示例页自身样式 ---------- */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    margin: 0;
+    padding: 32px;
+    background: #f6f7f9;
+    color: #1a1d23;
+  }
+  h1 { font-size: 22px; margin-top: 0; }
+  .intro { font-size: 13px; color: #666; max-width: 900px; }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .panel {
+    background: #fff;
+    border: 1px solid #e4e7ee;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .panel h2 { margin: 0 0 6px; font-size: 16px; }
+  .panel .sub { font-size: 12px; color: #999; margin: 0 0 16px; }
+  .note { font-size: 12px; color: #666; line-height: 1.6; }
+  .note code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; }
+  .stage { margin-bottom: 14px; }
+
+  /* ---------- ① box-sizing 差异 ---------- */
+  .ruler {
+    position: relative;
+    height: 24px;
+    background: repeating-linear-gradient(90deg, #e4e7ee 0, #e4e7ee 1px, transparent 1px, transparent 50px);
+    border-left: 1px solid #999;
+    margin-bottom: 2px;
+  }
+  .ruler span {
+    position: absolute;
+    font-size: 10px;
+    color: #999;
+    transform: translateX(-2px);
+  }
+  .box-content {
+    width: 300px;
+    padding: 16px;
+    border: 4px solid #e5484d;
+    background: #fdecec;
+    box-sizing: content-box;   /* 默认：实际宽 300 + 32 + 8 = 340 */
+    margin: 12px 0;
+  }
+  .box-border {
+    width: 300px;
+    padding: 16px;
+    border: 4px solid #12a150;
+    background: #e8f7ee;
+    box-sizing: border-box;    /* 实际宽正好 300 */
+    margin: 12px 0;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: #fff;
+    margin-right: 6px;
+  }
+  .tag-red { background: #e5484d; }
+  .tag-green { background: #12a150; }
+
+  /* ---------- ② BFC 解决高度塌陷 ---------- */
+  .parent-plain {
+    border: 2px solid #e5484d;
+    background: #fdecec;
+    margin-bottom: 12px;
+  }
+  .parent-bfc {
+    display: flow-root;          /* 现代正解：专门创建 BFC */
+    border: 2px solid #12a150;
+    background: #e8f7ee;
+    margin-bottom: 12px;
+  }
+  .floater {
+    float: left;
+    width: 120px;
+    height: 56px;
+    background: #2f6fed;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  /* ---------- ③ BFC 解决外边距合并 ---------- */
+  .margin-a {
+    background: #fdecec;
+    margin-bottom: 20px;
+    padding: 8px;
+  }
+  .margin-b {
+    background: #e8f7ee;
+    margin-top: 30px;
+    padding: 8px;
+  }
+  .gap-marker {
+    position: relative;
+    height: 30px;
+    margin: 4px 0;
+    border-left: 1px dashed #999;
+  }
+  .gap-marker::after {
+    content: "合并后 = 30px（取大）";
+    position: absolute;
+    left: 8px;
+    top: 6px;
+    font-size: 11px;
+    color: #e5484d;
+  }
+  .flex-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 12px;
+  }
+  .flex-column .item {
+    padding: 8px;
+    background: #eef1f6;
+  }
+
+  /* ---------- ④ z-index 失效 vs 生效 ---------- */
+  .stack-stage {
+    position: relative;
+    height: 110px;
+    margin-bottom: 10px;
+  }
+  .stack-base {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 200px;
+    height: 70px;
+    background: #fdecec;
+    border: 1px solid #e5484d;
+    padding: 8px;
+    font-size: 12px;
+  }
+  .stack-over {
+    position: absolute;
+    top: 30px;
+    left: 60px;
+    width: 200px;
+    height: 70px;
+    background: #2f6fed;
+    color: #fff;
+    padding: 8px;
+    font-size: 12px;
+  }
+  .stack-over.static {
+    z-index: 9999;               /* ❌ static 元素 z-index 无效 */
+    opacity: 0.9;
+  }
+  .stack-over.relative {
+    position: relative;          /* ✅ 定位后 z-index 生效 */
+    z-index: 9999;
+  }
+
+  /* 父层叠上下文演示 */
+  .ctx-a, .ctx-b {
+    position: relative;
+    width: 150px;
+    height: 90px;
+    display: inline-block;
+  }
+  .ctx-a { z-index: 1; }
+  .ctx-b { z-index: 2; }
+  .ctx-a .inner {
+    position: relative;
+    z-index: 9999;
+    width: 140px;
+    height: 40px;
+    background: #fdecec;
+    border: 1px solid #e5484d;
+  }
+  .ctx-b .inner {
+    position: relative;
+    z-index: 1;
+    width: 140px;
+    height: 40px;
+    background: #e8f7ee;
+    border: 1px solid #12a150;
+  }
+  .ctx-b { margin-left: -60px; }
+
+  /* ---------- ⑤ 五种 position ---------- */
+  .pos-stage {
+    position: relative;
+    height: 220px;
+    background: #fafbfc;
+    border: 1px dashed #ccc;
+    padding: 8px;
+    font-size: 12px;
+  }
+  .pos-static {
+    width: 120px;
+    padding: 6px;
+    background: #eef1f6;
+    border: 1px solid #999;
+  }
+  .pos-relative {
+    position: relative;
+    top: 16px;
+    left: 40px;
+    width: 120px;
+    padding: 6px;
+    background: #fdecec;
+    border: 1px solid #e5484d;
+  }
+  .pos-relative::after {
+    content: "（原位置留坑）";
+    font-size: 10px;
+    color: #999;
+  }
+  .pos-abs-wrap {
+    position: relative;          /* 包含块 */
+    width: 100%;
+    height: 60px;
+    margin-top: 24px;
+    border: 1px solid #e4e7ee;
+  }
+  .pos-absolute {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 6px;
+    background: #2f6fed;
+    color: #fff;
+  }
+  /* 固定定位演示（锚定视口） */
+  .pos-fixed {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #e5484d;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    z-index: 10;
+  }
+
+  /* sticky 演示（在滚动容器内吸顶） */
+  .scroll-box {
+    height: 160px;
+    overflow: auto;
+    border: 1px solid #e4e7ee;
+    margin-top: 12px;
+    font-size: 12px;
+  }
+  .scroll-box .filler {
+    padding: 8px;
+    color: #aaa;
+  }
+  .sticky-bar {
+    position: sticky;
+    top: 0;
+    padding: 8px;
+    background: #12a150;
+    color: #fff;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <h1>第 01 章 · 布局心智模型示例</h1>
+  <p class="intro">
+    下面五个演示，对应正文 1.1 ~ 1.5 节。你可以把代码里的 <code>box-sizing</code>、
+    <code>display: flow-root</code>、<code>position</code> 等注释/开关，观察现象变化。
+    其中「固定定位」和「sticky 吸顶」需要滚动页面或滚动内层容器才能看到效果。
+  </p>
+
+  <div class="demo-grid">
+
+    <!-- ① box-sizing -->
+    <div class="panel">
+      <h2>① box-sizing：width: 300 到底占多大</h2>
+      <p class="sub">红框 content-box 会撑大，绿框 border-box 正好 300px</p>
+
+      <div class="ruler"><span>0</span><span style="left:150px">150</span><span style="left:300px">300</span><span style="left:340px">340</span></div>
+      <div class="stage">
+        <div class="box-content"><span class="tag tag-red">content-box</span> width:300 + padding + border = 340px</div>
+        <div class="box-border"><span class="tag tag-green">border-box</span> width:300 = 总宽正好 300px</div>
+      </div>
+      <p class="note">
+        两个盒子都写了 <code>width: 300px</code>。红盒子默认 <code>content-box</code>，
+        padding(16×2) 和 border(4×2) 在外面另加，总宽 340px；绿盒子 <code>border-box</code>，
+        总宽就是 300px。这就是为什么全局强制 <code>border-box</code> 是标配。
+      </p>
+    </div>
+
+    <!-- ② BFC 解决高度塌陷 -->
+    <div class="panel">
+      <h2>② BFC 解决高度塌陷</h2>
+      <p class="sub">普通容器"看不见"浮动子元素，BFC"看得见"</p>
+
+      <div class="stage">
+        <div class="parent-plain">
+          <div class="floater">float 子元素</div>
+        </div>
+        <div class="parent-bfc">
+          <div class="floater">float 子元素</div>
+        </div>
+      </div>
+      <p class="note">
+        上面红框是普通容器，<code>float</code> 子元素"抽离"文档流，父容器高度塌成 0（只剩两条边贴在一起）；
+        下面绿框用了 <code>display: flow-root</code>（创建 BFC），正常包住浮动子元素，高度恢复。
+        <strong>flow-root 只创建 BFC，无任何副作用</strong>，是 <code>overflow: hidden</code> 的现代正解。
+      </p>
+    </div>
+
+    <!-- ③ BFC 解决外边距合并 -->
+    <div class="panel">
+      <h2>③ 外边距合并 vs 不合并</h2>
+      <p class="sub">20px + 30px 本该是 50，合并后只剩 30</p>
+
+      <div class="stage">
+        <div class="margin-a">A：margin-bottom 20px</div>
+        <div class="gap-marker"></div>
+        <div class="margin-b">B：margin-top 30px</div>
+      </div>
+      <p class="note">
+        上下两个块，垂直相邻的 margin 会<b>合并取大值</b>（30px），不是 20+30=50px。
+        这是段落排版的刻意设计，不是 bug。
+      </p>
+
+      <div class="flex-column">
+        <div class="item">flex 子项 A</div>
+        <div class="item">flex 子项 B</div>
+      </div>
+      <p class="note">
+        换成 <code>display: flex; flex-direction: column; gap: 16px</code>，
+        flex 子项之间<b>不合并</b>，间距统一交给 <code>gap</code> 管理。
+      </p>
+    </div>
+
+    <!-- ④ z-index 失效 vs 生效 -->
+    <div class="panel">
+      <h2>④ z-index 失效 vs 生效</h2>
+      <p class="sub">static 元素 z-index 无效；不同层叠上下文里，9999 也压不住 1</p>
+
+      <div class="stack-stage">
+        <div class="stack-base">基础盒子（相对定位）</div>
+        <div class="stack-over static">static + z-index:9999（❌ 无效，没盖上去）</div>
+      </div>
+      <p class="note">
+        上面蓝色盒子是 <code>position: static</code>，<code>z-index: 9999</code> 直接被忽略，盖不住基础盒子。
+      </p>
+
+      <div class="stack-stage">
+        <div class="stack-base">基础盒子（相对定位）</div>
+        <div class="stack-over relative">relative + z-index:9999（✅ 盖上去）</div>
+      </div>
+      <p class="note">
+        给蓝色盒子加 <code>position: relative</code> 后，<code>z-index</code> 才生效。
+      </p>
+
+      <div class="ctx-a">
+        <div class="inner">父层叠上下文 z-index:1，子 z-index:9999</div>
+      </div>
+      <div class="ctx-b">
+        <div class="inner">父层叠上下文 z-index:2，子 z-index:1</div>
+      </div>
+      <p class="note">
+        右边绿盒子（父 z-index:2）盖住了左边红盒子（父 z-index:1），尽管左边子元素的 z-index 高达 9999。
+        <strong>z-index 只在同一个层叠上下文里比较，子元素出不了父层叠上下文。</strong>
+      </p>
+    </div>
+
+    <!-- ⑤ 五种 position -->
+    <div class="panel">
+      <h2>⑤ 五种 position 的锚定</h2>
+      <p class="sub">static / relative / absolute / sticky 在同一块区域里对比</p>
+
+      <div class="pos-stage">
+        <div class="pos-static">static：待在正常流里</div>
+        <div class="pos-relative">relative：挪了但留坑</div>
+        <div class="pos-abs-wrap">
+          <div class="pos-absolute">absolute：锚定这个 relative 包含块的右上角</div>
+        </div>
+        <div class="scroll-box">
+          <div class="filler">往下滚动这个内层容器……</div>
+          <div class="sticky-bar">sticky：滚到这里就吸顶（top: 0）</div>
+          <div class="filler">继续滚动……</div>
+          <div class="filler">继续滚动……</div>
+          <div class="filler">继续滚动……</div>
+          <div class="filler">继续滚动……</div>
+        </div>
+      </div>
+      <p class="note">
+        <code>relative</code> 偏移的是视觉位置、原位置还留着坑；
+        <code>absolute</code> 锚定最近的定位祖先（这里是 <code>pos-abs-wrap</code>，它设了 relative）；
+        <code>sticky</code> 在滚动容器里滚到阈值就吸住。
+        右下角那个红色圆点是 <code>position: fixed</code>，锚定视口，滚动页面也不动。
+      </p>
+    </div>
+
+  </div>
+
+  <!-- 固定定位演示（锚定视口右下角） -->
+  <div class="pos-fixed">fixed</div>
+</body>
+</html>

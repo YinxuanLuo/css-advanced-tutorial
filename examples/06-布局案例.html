@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 06 章示例 · 十个布局案例：Flex vs Grid 对比</title>
+<style>
+  /* ===== 示例页自身样式 ===== */
+  :root {
+    --bg: #f6f7f9;
+    --panel: #fff;
+    --border: #e4e7ee;
+    --text: #1a1d23;
+    --muted: #666;
+    --flex: #2f6fed;
+    --grid: #12a150;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    margin: 0;
+    padding: 32px;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  h1 { font-size: 24px; margin: 0 0 8px; }
+  .lead { font-size: 14px; color: var(--muted); margin: 0 0 28px; max-width: 760px; }
+
+  .case {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+  .case h2 { margin: 0 0 4px; font-size: 17px; }
+  .tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 999px;
+    vertical-align: 2px;
+    margin-left: 6px;
+  }
+  .tag-flex  { background: #e3ecff; color: var(--flex); }
+  .tag-grid  { background: #e3f7ec; color: var(--grid); }
+  .tag-both  { background: #eeeef2; color: #555; }
+  .tag-none  { background: #fdeaea; color: #c0392b; }
+  .case .intro { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
+
+  .side { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .side h3 { margin: 0; padding: 8px 12px; font-size: 13px; color: #fff; }
+  .side.flex-side h3 { background: var(--flex); }
+  .side.grid-side h3 { background: var(--grid); }
+  .demo {
+    padding: 16px;
+    background: #fbfbfd;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .side pre {
+    margin: 0;
+    padding: 12px;
+    background: #282c34;
+    color: #e6e6e6;
+    font-size: 11.5px;
+    line-height: 1.5;
+    overflow-x: auto;
+  }
+  .side pre code { font-family: "SF Mono", Consolas, "Courier New", monospace; }
+  .verdict {
+    margin: 14px 0 0;
+    font-size: 13.5px;
+    padding: 10px 14px;
+    background: #f4f6fb;
+    border-left: 3px solid #2f6fed;
+    border-radius: 4px;
+  }
+  .verdict strong { color: #1a1d23; }
+
+  /* ===== 案例 1：导航栏 ===== */
+  .d1-flex, .d1-grid {
+    display: flex; align-items: center; gap: 12px;
+    background: #1f2937; color: #fff; padding: 10px 14px; border-radius: 6px;
+  }
+  .d1-flex a, .d1-grid a { color: #d1d5db; text-decoration: none; font-size: 12px; }
+  .d1-flex .brand, .d1-grid .brand { color: #fff; font-weight: 700; font-size: 14px; }
+  .d1-flex .login, .d1-grid .login { margin-left: auto; }
+  /* Grid 版导航：三列，中间链接组用 flex */
+  .d1-grid { display: grid; grid-template-columns: auto 1fr auto; }
+  .d1-grid .links { display: flex; gap: 12px; justify-self: center; }
+
+  /* ===== 案例 2：侧边栏 + 内容 ===== */
+  .d2-flex { display: flex; height: 140px; border-radius: 6px; overflow: hidden; }
+  .d2-grid { display: grid; grid-template-columns: 90px 1fr; height: 140px; border-radius: 6px; overflow: hidden; }
+  .d2-side { background: #334155; color: #cbd5e1; width: 90px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .d2-main { background: #e2e8f0; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #475569; }
+
+  /* ===== 案例 3：卡片网格 ===== */
+  .d3-flex { display: flex; flex-wrap: wrap; gap: 12px; }
+  .d3-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .d3-flex .cell { flex: 1 1 150px; height: 60px; background: #93c5fd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #1e3a8a; }
+  .d3-grid .cell { height: 60px; background: #86efac; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #14532d; }
+  .d3-flex .cell.alert { background: #fca5a5; color: #7f1d1d; }
+
+  /* ===== 案例 4：居中 ===== */
+  .d4-flex { display: flex; align-items: center; justify-content: center; height: 120px; background: #e2e8f0; border-radius: 6px; }
+  .d4-grid { display: grid; place-items: center; height: 120px; background: #e2e8f0; border-radius: 6px; }
+  .d4-flex .inner, .d4-grid .inner { background: #2f6fed; color: #fff; padding: 10px 18px; border-radius: 6px; font-size: 13px; }
+
+  /* ===== 案例 5：页头页脚 ===== */
+  .d5-flex { display: flex; flex-direction: column; height: 140px; border-radius: 6px; overflow: hidden; }
+  .d5-grid { display: grid; grid-template-rows: auto 1fr auto; height: 140px; border-radius: 6px; overflow: hidden; }
+  .d5-flex header, .d5-grid header { background: #334155; color: #fff; padding: 8px 12px; font-size: 11px; }
+  .d5-flex main, .d5-grid main { background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #475569; }
+  .d5-flex main { flex: 1; }
+  .d5-flex footer, .d5-grid footer { background: #475569; color: #cbd5e1; padding: 8px 12px; font-size: 11px; }
+
+  /* ===== 案例 6：圣杯 ===== */
+  .d6-flex { display: flex; height: 120px; border-radius: 6px; overflow: hidden; }
+  .d6-grid { display: grid; grid-template-columns: 70px 1fr 70px; height: 120px; border-radius: 6px; overflow: hidden; }
+  .d6-flex .main, .d6-grid .main { background: #fef08a; color: #713f12; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .d6-flex .main { flex: 1; order: 2; }
+  .d6-flex .left, .d6-grid .left { background: #bfdbfe; color: #1e3a8a; width: 70px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .d6-flex .left { order: 1; }
+  .d6-flex .right, .d6-grid .right { background: #fbcfe8; color: #831843; width: 70px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .d6-flex .right { order: 3; }
+  .d6-grid .main { grid-column: 2; grid-row: 1; }
+  .d6-grid .left { grid-column: 1; grid-row: 1; }
+  .d6-grid .right { grid-column: 3; grid-row: 1; }
+
+  /* ===== 案例 7：堆叠表单 ===== */
+  .d7-flex { display: flex; flex-direction: column; gap: 8px; max-width: 220px; }
+  .d7-grid { display: grid; gap: 8px; max-width: 220px; }
+  .d7-flex label, .d7-grid label { font-size: 12px; color: #475569; }
+  .d7-flex input, .d7-grid input { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; }
+  .d7-flex button, .d7-grid button { padding: 6px; border: none; border-radius: 4px; background: #2f6fed; color: #fff; font-size: 12px; cursor: pointer; }
+
+  /* ===== 案例 8：工具栏 ===== */
+  .d8-flex { display: flex; align-items: center; gap: 12px; }
+  .d8-grid { display: grid; grid-template-columns: auto auto auto 1fr auto auto; gap: 4px; }
+  .d8-flex .group, .d8-grid .group { display: flex; gap: 4px; }
+  .d8-flex .group:last-child, .d8-grid .group:last-child { margin-left: auto; }
+  .d8-flex button, .d8-grid button { padding: 5px 10px; border: 1px solid #cbd5e1; border-radius: 4px; background: #fff; font-size: 11px; cursor: pointer; }
+  .d8-flex button:hover, .d8-grid button:hover { background: #f1f5f9; }
+
+  /* ===== 案例 9：瀑布流 ===== */
+  .d9-cols { columns: 3; column-gap: 10px; }
+  .d9-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 20px; gap: 10px; }
+  .d9-cols .tile { break-inside: avoid; margin-bottom: 10px; border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .d9-grid .tile { border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+  .t1 { height: 60px; background: #60a5fa; }
+  .t2 { height: 40px; background: #34d399; }
+  .t3 { height: 80px; background: #f472b6; }
+  .t4 { height: 50px; background: #a78bfa; }
+  .t5 { height: 70px; background: #fbbf24; }
+  .d9-grid .t1 { grid-row: span 3; }
+  .d9-grid .t2 { grid-row: span 2; }
+  .d9-grid .t3 { grid-row: span 4; }
+  .d9-grid .t4 { grid-row: span 2; }
+  .d9-grid .t5 { grid-row: span 3; }
+
+  /* ===== 案例 10：仪表盘 ===== */
+  .d10-grid {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "header header header"
+      "side   stats  stats"
+      "side   chart  list"
+      "footer footer footer";
+    gap: 6px;
+    height: 180px;
+  }
+  .d10-grid > div { border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; }
+  .d10-header { grid-area: header; background: #334155; }
+  .d10-side   { grid-area: side;   background: #6366f1; }
+  .d10-stats  { grid-area: stats;  background: #0ea5e9; }
+  .d10-chart  { grid-area: chart;  background: #14b8a6; }
+  .d10-list   { grid-area: list;   background: #f59e0b; }
+  .d10-footer { grid-area: footer; background: #64748b; }
+</style>
+</head>
+<body>
+  <h1>第 06 章示例 · 十个布局案例：Flex vs Grid</h1>
+  <p class="lead">
+    下面每个案例都并排给出了 <b style="color:#2f6fed">Flex 写法</b> 和 <b style="color:#12a150">Grid 写法</b> 的真实渲染效果，以及各自的 CSS 代码。
+    注意观察 <b>案例 3（卡片网格）</b> 里 Flex 版最后一行被拉伸的现象——那就是"该用 Grid 却硬用 Flex"的代价。
+    推荐标签只代表"这个案例更适合用谁"，不代表另一种写法做不到。
+  </p>
+
+  <!-- ========== 案例 1 ========== -->
+  <section class="case">
+    <h2>案例 1 · 水平导航栏 <span class="tag tag-flex">推荐 Flex</span></h2>
+    <p class="intro">一排内容驱动的链接。Flex 的 <code>margin-left: auto</code> 把「登录」推到右边；Grid 版要声明三列，还得给中间的链接组加 <code>justify-self: center</code>。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法</h3>
+        <div class="demo">
+          <nav class="d1-flex">
+            <a class="brand" href="#">Logo</a>
+            <a href="#">首页</a>
+            <a href="#">产品</a>
+            <a href="#">关于</a>
+            <a class="login" href="#">登录</a>
+          </nav>
+        </div>
+        <pre><code>.nav { display: flex; align-items: center; gap: 12px; }
+.nav .login { margin-left: auto; }</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法（能写，但绕）</h3>
+        <div class="demo">
+          <nav class="d1-grid">
+            <a class="brand" href="#">Logo</a>
+            <div class="links"><a href="#">首页</a><a href="#">产品</a><a href="#">关于</a></div>
+            <a class="login" href="#">登录</a>
+          </nav>
+        </div>
+        <pre><code>.nav { display: grid;
+  grid-template-columns: auto 1fr auto; }
+.nav .links { display: flex; justify-self: center; }</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：用 Flex。</strong> 导航是一维 + 内容驱动。Grid 版那个 <code>1fr</code> 中间列是硬挤出来的，且链接组内部还得再套一层 Flex。</p>
+  </section>
+
+  <!-- ========== 案例 2 ========== -->
+  <section class="case">
+    <h2>案例 2 · 垂直侧边栏 + 内容 <span class="tag tag-grid">推荐 Grid</span></h2>
+    <p class="intro">页面骨架的两列结构。Grid 的 <code>grid-template-columns: 90px 1fr</code> 一眼看懂「左固定、右自适应」；Flex 版要加 <code>flex-shrink: 0</code> 防收缩。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法</h3>
+        <div class="demo">
+          <div class="d2-flex">
+            <div class="d2-side">侧边栏</div>
+            <div class="d2-main">主内容</div>
+          </div>
+        </div>
+        <pre><code>.layout { display: flex; height: 140px; }
+.sidebar { width: 90px; flex-shrink: 0; }
+.content { flex: 1; }</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法</h3>
+        <div class="demo">
+          <div class="d2-grid">
+            <div class="d2-side">侧边栏</div>
+            <div class="d2-main">主内容</div>
+          </div>
+        </div>
+        <pre><code>.layout { display: grid;
+  grid-template-columns: 90px 1fr;
+  height: 140px; }</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：用 Grid。</strong> 「两列骨架」是页面结构，Grid 把结构写在了脸上；Flex 版本多一个 <code>flex-shrink: 0</code> 补丁。</p>
+  </section>
+
+  <!-- ========== 案例 3 ========== -->
+  <section class="case">
+    <h2>案例 3 · 卡片网格 <span class="tag tag-grid">推荐 Grid</span></h2>
+    <p class="intro">5 张卡片、容器宽度固定。Flex 版（<code>flex: 1 1 150px</code>）最后一行只有 1 张卡片时会被拉伸占满整行（红色那张）；Grid 版（<code>auto-fit</code>）最后一行保持和上面一样的列宽。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法（最后一行拉伸了）</h3>
+        <div class="demo">
+          <div class="d3-flex">
+            <div class="cell">1</div>
+            <div class="cell">2</div>
+            <div class="cell">3</div>
+            <div class="cell">4</div>
+            <div class="cell alert">5（被拉伸）</div>
+          </div>
+        </div>
+        <pre><code>.cards { display: flex; flex-wrap: wrap; gap: 12px; }
+.card { flex: 1 1 150px; }  /* ❌ 最后一行拉伸 */</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法（列宽严格一致）</h3>
+        <div class="demo">
+          <div class="d3-grid">
+            <div class="cell">1</div>
+            <div class="cell">2</div>
+            <div class="cell">3</div>
+            <div class="cell">4</div>
+            <div class="cell">5</div>
+          </div>
+        </div>
+        <pre><code>.cards { display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px; }</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：Grid 完胜。</strong> 卡片网格是二维 + 布局驱动。注意 Flex 版最后一行「5」比上面几张宽了一截——这就是 <code>flex-grow: 1</code> 的副作用。</p>
+  </section>
+
+  <!-- ========== 案例 4 ========== -->
+  <section class="case">
+    <h2>案例 4 · 居中一个元素 <span class="tag tag-both">两者皆可</span></h2>
+    <p class="intro">单元素水平垂直居中。两行（Flex）和一行（Grid 的 <code>place-items</code>）效果完全一样，选谁看团队习惯。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法</h3>
+        <div class="demo">
+          <div class="d4-flex"><div class="inner">居中</div></div>
+        </div>
+        <pre><code>.box { display: flex;
+  align-items: center;
+  justify-content: center; }</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法</h3>
+        <div class="demo">
+          <div class="d4-grid"><div class="inner">居中</div></div>
+        </div>
+        <pre><code>.box { display: grid;
+  place-items: center; }</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：两个都行。</strong> 居中太简单，两者都只是「顺手提供」。关键是一致——别在一个项目里两种混着写。Grid 的 <code>place-items: center</code> 是最短写法。</p>
+  </section>
+
+  <!-- ========== 案例 5 ========== -->
+  <section class="case">
+    <h2>案例 5 · 页头页脚布局（sticky footer）<span class="tag tag-grid">推荐 Grid</span></h2>
+    <p class="intro">页头、内容、页脚三行，内容区占满剩余高度、页脚贴底。Grid 的 <code>grid-template-rows: auto 1fr auto</code> 直接画出了三行结构。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法</h3>
+        <div class="demo">
+          <div class="d5-flex">
+            <header>页头</header>
+            <main>内容（占满剩余）</main>
+            <footer>页脚</footer>
+          </div>
+        </div>
+        <pre><code>.page { display: flex;
+  flex-direction: column;
+  min-height: 100vh; }
+main { flex: 1; }</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法</h3>
+        <div class="demo">
+          <div class="d5-grid">
+            <header>页头</header>
+            <main>内容（占满剩余）</main>
+            <footer>页脚</footer>
+          </div>
+        </div>
+        <pre><code>.page { display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh; }</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：用 Grid。</strong> 三行骨架是二维问题（同时控制「三行的存在」和「中间行的高度分配」），Grid 的三行模型更直白。</p>
+  </section>
+
+  <!-- ========== 案例 6 ========== -->
+  <section class="case">
+    <h2>案例 6 · 圣杯 / 双飞翼布局 <span class="tag tag-grid">推荐 Grid</span></h2>
+    <p class="intro">三栏：左右固定、中间自适应，且 HTML 里主内容排第一（SEO 友好）。Grid 用 <code>grid-column</code> 把「位置」和「文档顺序」解耦；Flex 只能用 <code>order</code> 改视觉顺序，会破坏键盘焦点顺序。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法（order 改顺序）</h3>
+        <div class="demo">
+          <div class="d6-flex">
+            <div class="main">主内容</div>
+            <div class="left">左栏</div>
+            <div class="right">右栏</div>
+          </div>
+        </div>
+        <pre><code>.grail { display: flex; }
+.main { flex: 1; order: 2; }
+.left { width: 70px; order: 1; }
+.right { width: 70px; order: 3; }</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法（HTML 顺序不动）</h3>
+        <div class="demo">
+          <div class="d6-grid">
+            <div class="main">主内容</div>
+            <div class="left">左栏</div>
+            <div class="right">右栏</div>
+          </div>
+        </div>
+        <pre><code>.grail { display: grid;
+  grid-template-columns: 70px 1fr 70px; }
+.main { grid-column: 2; }
+.left { grid-column: 1; }
+.right { grid-column: 3; }</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：Grid 完胜。</strong> 「内容优先 + 视觉居中」本质是「位置与顺序解耦」，这是 Grid 的强项。Flex 的 <code>order</code> 不改 DOM 顺序，Tab 键仍先到左栏。</p>
+  </section>
+
+  <!-- ========== 案例 7 ========== -->
+  <section class="case">
+    <h2>案例 7 · 堆叠式表单 <span class="tag tag-flex">推荐 Flex</span></h2>
+    <p class="intro">一列往下排的线性流程。Flex 的 <code>flex-direction: column</code> 正好表达「一条线」；Grid 版单列是「用网格描述一个没有网格的结构」。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法</h3>
+        <div class="demo">
+          <div class="d7-flex">
+            <label for="f1">姓名</label><input id="f1" type="text" placeholder="张三">
+            <label for="f2">邮箱</label><input id="f2" type="email" placeholder="a@b.com">
+            <button type="button">提交</button>
+          </div>
+        </div>
+        <pre><code>.form { display: flex;
+  flex-direction: column;
+  gap: 8px; }</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法（能写，但没必要）</h3>
+        <div class="demo">
+          <div class="d7-grid">
+            <label for="g1">姓名</label><input id="g1" type="text" placeholder="张三">
+            <label for="g2">邮箱</label><input id="g2" type="email" placeholder="a@b.com">
+            <button type="button">提交</button>
+          </div>
+        </div>
+        <pre><code>.form { display: grid;
+  gap: 8px; }  /* 单列 Grid */</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：用 Flex。</strong> 堆叠表单是「一条线」，不是「一张网」。只有「标签在左、输入在右」的两列对齐表单，才轮到 Grid。</p>
+  </section>
+
+  <!-- ========== 案例 8 ========== -->
+  <section class="case">
+    <h2>案例 8 · 工具栏（按钮组）<span class="tag tag-flex">推荐 Flex</span></h2>
+    <p class="intro">一排按钮，左边一组（格式）、右边一组（撤销/重做）。Flex 的 <code>margin-left: auto</code> 把第二组推右，按钮数量怎么变都对；Grid 版写死了 6 列，加一个按钮就坏。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法</h3>
+        <div class="demo">
+          <div class="d8-flex">
+            <div class="group"><button>加粗</button><button>斜体</button><button>下划线</button></div>
+            <div class="group"><button>撤销</button><button>重做</button></div>
+          </div>
+        </div>
+        <pre><code>.toolbar { display: flex; gap: 12px; }
+.group { display: flex; gap: 4px; }
+.group:last-child { margin-left: auto; }</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法（写死列数）</h3>
+        <div class="demo">
+          <div class="d8-grid">
+            <div class="group"><button>加粗</button><button>斜体</button><button>下划线</button></div>
+            <div class="group"><button>撤销</button><button>重做</button></div>
+          </div>
+        </div>
+        <pre><code>.toolbar { display: grid;
+  grid-template-columns:
+    auto auto auto 1fr auto auto; }</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：用 Flex。</strong> 工具栏是「一排数量不定的按钮」，内容驱动。Grid 要求预先声明列数，按钮一多就得改 <code>grid-template-columns</code>。</p>
+  </section>
+
+  <!-- ========== 案例 9 ========== -->
+  <section class="case">
+    <h2>案例 9 · 画廊（瀑布流）<span class="tag tag-none">两个都不擅长</span></h2>
+    <p class="intro">瀑布流要求「每列独立向下堆叠、下一张塞到最短的列」。纯 CSS 的诚实答案是 <code>columns</code>（代价是纵向阅读顺序）；Grid 只能「近似」（需手动算每张 span 几行）；Flex 直接出局。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>columns 版（真瀑布流）</h3>
+        <div class="demo">
+          <div class="d9-cols">
+            <div class="tile t1">1</div>
+            <div class="tile t2">2</div>
+            <div class="tile t3">3</div>
+            <div class="tile t4">4</div>
+            <div class="tile t5">5</div>
+          </div>
+        </div>
+        <pre><code>.masonry { columns: 3; column-gap: 10px; }
+.tile { break-inside: avoid; }</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 版（近似，需算 span）</h3>
+        <div class="demo">
+          <div class="d9-grid">
+            <div class="tile t1">1</div>
+            <div class="tile t2">2</div>
+            <div class="tile t3">3</div>
+            <div class="tile t4">4</div>
+            <div class="tile t5">5</div>
+          </div>
+        </div>
+        <pre><code>.masonry { display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 20px; gap: 10px; }
+.tile:nth-child(1) { grid-row: span 3; }
+/* ...每张都要算 span 几行 */</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：都不完美。</strong> 注意 columns 版是「先从上到下再从左到右」的纵向阅读顺序；Grid 版保持了横向顺序，但要手动算每张卡片 span 几行（真实图片高度需 JS 量）。</p>
+  </section>
+
+  <!-- ========== 案例 10 ========== -->
+  <section class="case">
+    <h2>案例 10 · 仪表盘 <span class="tag tag-grid">推荐 Grid</span></h2>
+    <p class="intro">多个命名区域、跨行跨列，是 <code>grid-template-areas</code> 的封神场景——布局直接「画」在 CSS 里。硬用 Flex 会嵌套成金字塔。</p>
+    <div class="compare">
+      <div class="side flex-side">
+        <h3>Flex 写法（层层嵌套）</h3>
+        <div class="demo">
+          <div class="d10-grid" style="grid-template-areas:'header header header' 'side stats stats' 'side chart list' 'footer footer footer'; grid-template-columns:60px 1fr 1fr; grid-template-rows:auto auto auto auto;">
+            <div class="d10-header">头部</div>
+            <div class="d10-side">侧栏</div>
+            <div class="d10-stats">统计</div>
+            <div class="d10-chart">图表</div>
+            <div class="d10-list">列表</div>
+            <div class="d10-footer">底部</div>
+          </div>
+        </div>
+        <pre><code>/* Flex 版要 row → right → 内层，层层嵌套 div，
+   这里用 Grid 演示最终效果，但 Flex 版代码
+   会碎成 row/col 包裹层，见正文 6.2.10 */</code></pre>
+      </div>
+      <div class="side grid-side">
+        <h3>Grid 写法（命名区域）</h3>
+        <div class="demo">
+          <div class="d10-grid">
+            <div class="d10-header">头部</div>
+            <div class="d10-side">侧栏</div>
+            <div class="d10-stats">统计</div>
+            <div class="d10-chart">图表</div>
+            <div class="d10-list">列表</div>
+            <div class="d10-footer">底部</div>
+          </div>
+        </div>
+        <pre><code>.dashboard { display: grid;
+  grid-template-columns: 60px 1fr 1fr;
+  grid-template-areas:
+    "header header header"
+    "side   stats  stats"
+    "side   chart  list"
+    "footer footer footer"; }</code></pre>
+      </div>
+    </div>
+    <p class="verdict"><strong>结论：Grid 完胜。</strong> <code>grid-template-areas</code> 把整个仪表盘布局画在 CSS 里，改布局 = 改这张 ASCII 图。硬用 Flex 会写出一层层 <code>row</code>/<code>col</code> 包裹 div。</p>
+  </section>
+
+</body>
+</html>

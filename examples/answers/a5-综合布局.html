@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>a5 · 综合布局（Flex 嵌套 Grid + 媒体查询）</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; color: #1a1d23; background: #f6f7f9; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 16px; margin-top: 32px; }
+  .hint { color: #888; font-size: 13px; margin-bottom: 16px; }
+
+  /* ---------- 核心答案：移动优先，默认单列，min-width 往上加列 ---------- */
+  .articles {
+    display: grid;
+    grid-template-columns: 1fr;   /* 默认（移动端）单列 */
+    gap: 16px;
+  }
+
+  @media (min-width: 768px) {
+    .articles {
+      grid-template-columns: 1fr 1fr 1fr;   /* 桌面三列 */
+    }
+  }
+
+  /* 文章卡片：内部用 Flex 排标题和摘要 */
+  .article {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e4e7ee;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .article h3 { margin: 0 0 8px; font-size: 16px; }
+  .article p { flex: 1; margin: 0; color: #666; font-size: 14px; }
+
+  /* ---------- 底部功能按钮：Flex + flex-wrap，窄屏换行 ---------- */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;   /* 窄屏允许换行 */
+    gap: 8px;
+    margin-top: 32px;
+  }
+  .toolbar button {
+    border: 1px solid #d4d8e0;
+    background: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+  <h1>文章页 · 综合布局</h1>
+  <p class="hint">把窗口缩到 768px 以下，文章卡片从三列变单列（移动优先）；底部的功能按钮在窄屏会换行、宽屏排成一行。</p>
+
+  <div class="articles">
+    <div class="article">
+      <h3>文章一</h3>
+      <p>摘要文字……</p>
+    </div>
+    <div class="article">
+      <h3>文章二</h3>
+      <p>摘要文字，长一点也没关系。</p>
+    </div>
+    <div class="article">
+      <h3>文章三</h3>
+      <p>摘要文字。</p>
+    </div>
+    <div class="article">
+      <h3>文章四</h3>
+      <p>摘要文字。</p>
+    </div>
+    <div class="article">
+      <h3>文章五</h3>
+      <p>摘要文字。</p>
+    </div>
+    <div class="article">
+      <h3>文章六</h3>
+      <p>摘要文字。</p>
+    </div>
+  </div>
+
+  <h2>操作区</h2>
+  <div class="toolbar">
+    <button>新建</button>
+    <button>编辑</button>
+    <button>删除</button>
+    <button>导出</button>
+    <button>分享</button>
+    <button>更多设置</button>
+  </div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "09-tailwind-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "第 09 章实战：用 Tailwind CSS 从零搭一个响应式后台页面",
+  "scripts": {
+    "build": "tailwindcss -i ./src/input.css -o ./dist/output.css",
+    "watch": "tailwindcss -i ./src/input.css -o ./dist/output.css --watch",
+    "build:min": "tailwindcss -i ./src/input.css -o ./dist/output.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

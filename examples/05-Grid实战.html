@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 05 章示例 · Grid 实战：骨架 / auto-fit / 跨列 / subgrid</title>
+<style>
+  /* ---------- 示例页自身样式 ---------- */
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    margin: 0; padding: 32px; background: #f6f7f9; color: #1a1d23;
+  }
+  h1 { font-size: 22px; }
+  .sub { font-size: 14px; color: #666; margin-bottom: 24px; }
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+  }
+  .panel {
+    background: #fff; border: 1px solid #e4e7ee; border-radius: 10px; padding: 20px;
+  }
+  .panel h2 { margin: 0 0 4px; font-size: 16px; }
+  .panel .note { font-size: 13px; color: #666; margin: 10px 0 0; line-height: 1.6; }
+  .panel code { background: #f0f2f5; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
+  .tag.good { background: #e8f7ee; color: #1e8449; }
+  .tag.bad  { background: #fdecec; color: #c0392b; }
+
+  /* ---------- 演示 1：页面骨架（圣杯） ---------- */
+  .holy {
+    display: grid;
+    grid-template-columns: 140px 1fr 120px;
+    grid-template-rows: 44px 1fr 44px;
+    grid-template-areas:
+      "header header header"
+      "left   main   right"
+      "footer footer footer";
+    gap: 8px;
+    height: 240px;
+    margin-top: 12px;
+  }
+  .holy > div { display: flex; align-items: center; justify-content: center; color: #fff; border-radius: 6px; font-size: 13px; }
+  .holy .hd { grid-area: header; background: #2f6fed; }
+  .holy .left { grid-area: left; background: #12a150; }
+  .holy .main { grid-area: main; background: #f39c12; }
+  .holy .right { grid-area: right; background: #9b59b6; }
+  .holy .ft { grid-area: footer; background: #7f8c8d; }
+
+  /* ---------- 演示 2：自适应网格 auto-fit ---------- */
+  .fit {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .fit .card {
+    background: #2f6fed; color: #fff; border-radius: 6px; height: 60px;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .resize-hint { font-size: 12px; color: #999; margin-top: 8px; }
+
+  /* ---------- 演示 3：跨列跨行（杂志式） ---------- */
+  .mag {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 60px;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .mag > div { display: flex; align-items: center; justify-content: center; color: #fff; border-radius: 6px; font-size: 12px; background: #2f6fed; }
+  .mag .hero { grid-column: span 2; grid-row: span 2; background: #e5484d; }
+  .mag .wide { grid-column: span 2; background: #f39c12; }
+  .mag .tall { grid-row: span 2; background: #12a150; }
+
+  /* ---------- 演示 4：subgrid（子网格对齐父网格） ---------- */
+  .parent {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+    background: #f0f4ff; padding: 10px; border-radius: 8px;
+  }
+  .parent > .label {
+    grid-column: 1 / -1; font-size: 12px; color: #666; font-weight: 600;
+  }
+  .sub {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: subgrid;   /* 继承父网格的 4 列 */
+    gap: 10px;
+  }
+  .sub .cell {
+    background: #12a150; color: #fff; border-radius: 6px; height: 44px;
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .sub-fallback {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* 不支持 subgrid 时的兜底 */
+    gap: 10px;
+  }
+  .sub-fallback .cell {
+    background: #f39c12; color: #fff; border-radius: 6px; height: 44px;
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+  }
+  .col-marker {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 6px;
+  }
+  .col-marker span { font-size: 11px; color: #2f6fed; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>第 05 章 · Grid 实战示例</h1>
+  <p class="sub">四个演示对应正文 5.1 / 5.3 / 5.4 / 5.5 节。拖拽浏览器窗口宽度，观察 <code>auto-fit</code> 如何自动换列。</p>
+
+  <div class="demo-grid">
+
+    <!-- 演示 1：页面骨架 -->
+    <div class="panel">
+      <h2>① 页面骨架（圣杯 / 双飞翼）</h2>
+      <p class="note"><code>200px 1fr 160px</code> 一行三列，areas 画骨架。注意 <code>main</code> 在 HTML 里可排最前，视觉位置由 areas 决定。</p>
+      <div class="holy">
+        <div class="hd">header</div>
+        <div class="left">左侧栏</div>
+        <div class="main">main（DOM 优先）</div>
+        <div class="right">右侧栏</div>
+        <div class="ft">footer</div>
+      </div>
+      <p class="note">左右固定、中间自适应、三列等高、footer 贴底，全部自动满足，无需任何 float 补丁。</p>
+    </div>
+
+    <!-- 演示 2：自适应网格 auto-fit -->
+    <div class="panel">
+      <h2>② 自适应网格 <code>auto-fit</code></h2>
+      <p class="note"><code>repeat(auto-fit, minmax(120px, 1fr))</code>：列宽至少 120px、多了均分、列数自动。没有一行媒体查询。</p>
+      <div class="fit">
+        <div class="card">卡片 1</div>
+        <div class="card">卡片 2</div>
+        <div class="card">卡片 3</div>
+        <div class="card">卡片 4</div>
+        <div class="card">卡片 5</div>
+        <div class="card">卡片 6</div>
+        <div class="card">卡片 7</div>
+        <div class="card">卡片 8</div>
+      </div>
+      <p class="resize-hint">↔ 拖拽窗口宽度，列数会自动"啪"地增减，卡片始终填满、始终对齐。</p>
+    </div>
+
+    <!-- 演示 3：跨列跨行 -->
+    <div class="panel">
+      <h2>③ 跨列跨行：<code>span</code></h2>
+      <p class="note">只给少数"特殊元素"写 <code>span</code>，其余自动放置。<code>hero</code> 跨 2 列 2 行，<code>wide</code> 跨 2 列，<code>tall</code> 跨 2 行。</p>
+      <div class="mag">
+        <div class="hero">hero（2×2）</div>
+        <div>2</div>
+        <div>3</div>
+        <div class="wide">wide（跨2列）</div>
+        <div class="tall">tall（跨2行）</div>
+        <div>6</div>
+      </div>
+      <p class="note">你只显式指定了 3 个元素，其余 3 个普通格子自动归位——这就是"先骨架、后微调"。</p>
+    </div>
+
+    <!-- 演示 4：subgrid -->
+    <div class="panel">
+      <h2>④ <code>subgrid</code>：子网格对齐父网格</h2>
+      <p class="note">下面的父网格是 4 列。两块子网格各占 2 列，用 <code>grid-template-columns: subgrid</code> 让内部单元格对齐父网格的列线（参考下方 1~4 列刻度）。</p>
+      <div class="parent">
+        <div class="label">父网格（4 列）</div>
+        <div class="sub">
+          <div class="cell">A1</div>
+          <div class="cell">A2</div>
+        </div>
+        <div class="sub">
+          <div class="cell">B1</div>
+          <div class="cell">B2</div>
+        </div>
+      </div>
+      <div class="col-marker">
+        <span>列1</span><span>列2</span><span>列3</span><span>列4</span>
+      </div>
+      <p class="note">A1、A2、B1、B2 精确落在父网格的 4 条列线上（A1 对齐列1、A2 对齐列2、B1 对齐列3、B2 对齐列4）。若你的浏览器不支持 <code>subgrid</code>（Chrome &lt; 117 / Safari &lt; 16），会退回各自均分、无法对齐——见正文 5.5.3 的降级方案。</p>
+      <span class="tag bad">不支持时（fallback）：各自均分，列线错位</span>
+      <div class="parent">
+        <div class="label">父网格（4 列）</div>
+        <div class="sub-fallback">
+          <div class="cell">A1</div>
+          <div class="cell">A2</div>
+        </div>
+        <div class="sub-fallback">
+          <div class="cell">B1</div>
+          <div class="cell">B2</div>
+        </div>
+      </div>
+      <div class="col-marker">
+        <span>列1</span><span>列2</span><span>列3</span><span>列4</span>
+      </div>
+      <p class="note">对比：不用 <code>subgrid</code> 时，每块子网格内部各自 <code>repeat(2, 1fr)</code>，内部列线和父网格对不上。</p>
+    </div>
+
+  </div>
+</body>
+</html>

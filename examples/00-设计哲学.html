@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 00 章示例 · float 塌陷 vs Flex</title>
+<style>
+  /* 示例页自身样式（用 Flex/Grid 排布演示面板） */
+  body {
+    font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
+    margin: 0; padding: 32px; background: #f6f7f9; color: #1a1d23;
+  }
+  h1 { font-size: 22px; }
+  .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+  .panel { background: #fff; border: 1px solid #e4e7ee; border-radius: 10px; padding: 20px; }
+  .panel h2 { margin: 0 0 12px; font-size: 16px; }
+  .note { font-size: 13px; color: #666; }
+
+  /* ---------- 演示 1：float 高度塌陷（反例） ---------- */
+  .parent-float { border: 2px solid #e5484d; background: #fdecec; }
+  .child-float { float: left; width: 120px; height: 60px; background: #e5484d; color: #fff;
+                 display: flex; align-items: center; justify-content: center; }
+  /* 清除浮动的补丁（注释掉即可看到塌陷） */
+  .parent-float.clearfix::after { content: ""; display: block; clear: both; }
+
+  /* ---------- 演示 2：Flex 一行搞定（正例） ---------- */
+  .parent-flex { display: flex; border: 2px solid #12a150; background: #e8f7ee; }
+  .child-flex { width: 120px; height: 60px; background: #12a150; color: #fff;
+                display: flex; align-items: center; justify-content: center; }
+
+  /* ---------- 演示 3：居中对比 ---------- */
+  .center-box { width: 100%; height: 120px; border: 2px dashed #999; margin-bottom: 12px; }
+  .center-abs { position: relative; }
+  .center-abs .inner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                       background: #2f6fed; color: #fff; padding: 8px 16px; border-radius: 6px; }
+  .center-grid { display: grid; place-items: center; }
+  .center-grid .inner { background: #2f6fed; color: #fff; padding: 8px 16px; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <h1>第 00 章 · 设计哲学示例</h1>
+  <p class="note">下面三个演示，对应正文 0.9 节"三段经典崩溃"。你可以把代码里的注释打开/关闭，观察现象变化。</p>
+
+  <div class="demo-grid">
+
+    <div class="panel">
+      <h2>① float 导致父容器高度塌陷</h2>
+      <div class="parent-float">
+        <div class="child-float">我在浮动</div>
+      </div>
+      <p class="note">红色边框是父容器。子元素 <code>float: left</code> 后"抽离"了文档流，父容器"看不到"它，于是高度塌成 0（只剩边框两条线贴在一起）。</p>
+      <p class="note">补丁：给父容器加 <code>clearfix</code> 类（伪元素 <code>clear: both</code>），高度才恢复。</p>
+    </div>
+
+    <div class="panel">
+      <h2>② Flex 一行搞定，无塌陷</h2>
+      <div class="parent-flex">
+        <div class="child-flex">我在 Flex 里</div>
+      </div>
+      <p class="note">绿色边框是父容器。子元素在 Flex 里不"抽离"文档流，父容器正常包裹它，高度自然正确——<strong>根本不存在"清除浮动"这回事</strong>。</p>
+    </div>
+
+    <div class="panel">
+      <h2>③ 水平垂直居中：借来的 vs 原生的</h2>
+      <div class="center-box center-abs">
+        <div class="inner">绝对定位 + transform</div>
+      </div>
+      <div class="center-box center-grid">
+        <div class="inner">grid place-items: center</div>
+      </div>
+      <p class="note">上面是"借来的能力"（绝对定位 + transform 负偏移），下面是"为居中而生"的 <code>place-items: center</code>。同样的结果，后者的意图一眼就懂。</p>
+    </div>
+
+  </div>
+</body>
+</html>

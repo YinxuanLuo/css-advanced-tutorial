@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>a1 · 后台管理骨架（Grid 圣杯布局）</title>
+<style>
+  /* 全局：统一盒模型 + 撑满视口 */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; color: #1a1d23; }
+
+  /* ---------- 核心答案：Grid + grid-template-areas ---------- */
+  .layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: 56px 1fr 48px;
+    grid-template-areas:
+      "header header"
+      "sidebar main"
+      "footer footer";
+    gap: 12px;
+    height: 100vh;
+    padding: 12px;
+    background: #f6f7f9;
+  }
+
+  /* 各区域：用 grid-area 对上名字 */
+  .header { grid-area: header; }
+  .sidebar { grid-area: sidebar; }
+  .main { grid-area: main; }
+  .footer { grid-area: footer; }
+
+  /* 通用面板外观 */
+  .panel {
+    background: #fff;
+    border: 1px solid #e4e7ee;
+    border-radius: 10px;
+    padding: 16px;
+    overflow: auto;   /* 关键：让 main 内部自己滚动 */
+  }
+  .header { display: flex; align-items: center; font-weight: bold; font-size: 16px; }
+  .sidebar ul { list-style: none; margin: 0; padding: 0; }
+  .sidebar li { padding: 8px 0; border-bottom: 1px solid #f0f2f5; }
+  .footer { display: flex; align-items: center; color: #888; font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="layout">
+    <header class="panel header">后台管理骨架</header>
+
+    <aside class="panel sidebar">
+      <ul>
+        <li>仪表盘</li>
+        <li>用户管理</li>
+        <li>内容管理</li>
+        <li>系统设置</li>
+        <li>退出登录</li>
+      </ul>
+    </aside>
+
+    <main class="panel main">
+      <h1>主内容区</h1>
+      <p>这里放很多内容，让这块区域可以滚动，验证「只有 main 滚动、其余固定」。</p>
+      <p>布局要点：外层 <code>.layout</code> 用 <code>grid-template-areas</code> 拼出四块，<code>header</code> 和 <code>footer</code> 各占满两列（名字写两遍），<code>sidebar</code> 固定 200px（来自 <code>grid-template-columns: 200px 1fr</code>），<code>main</code> 占剩余宽度。</p>
+      <p>撑满视口靠 <code>height: 100vh</code>；中间一行的高度由 <code>grid-template-rows: 56px 1fr 48px</code> 里的 <code>1fr</code> 吃掉剩余空间。</p>
+      <p>滚动效果靠给 <code>.panel</code>（尤其是 main）设 <code>overflow: auto</code>——当 main 内容超高时，只有它自己出现滚动条。</p>
+      <p style="height: 400px;"></p>
+      <p>（底部占位，用于制造滚动）</p>
+    </main>
+
+    <footer class="panel footer">© 2026 示例 · 改 grid-template-areas 就能调整布局</footer>
+  </div>
+</body>
+</html>

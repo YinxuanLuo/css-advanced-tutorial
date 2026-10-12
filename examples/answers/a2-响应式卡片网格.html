@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>a2 · 响应式卡片网格</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; color: #1a1d23; background: #f6f7f9; }
+  h1 { font-size: 20px; }
+  .hint { color: #888; font-size: 13px; margin-bottom: 16px; }
+
+  /* ---------- 核心答案：自适应列数，无需媒体查询 ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  /* 每张卡片：纵向排列 + 按钮贴底 */
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e4e7ee;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card p { flex: 1; margin: 0 0 12px; color: #666; font-size: 14px; }
+  .card button {
+    border: none;
+    background: #2f6fed;
+    color: #fff;
+    padding: 8px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <h1>响应式卡片网格</h1>
+  <p class="hint">拖动浏览器窗口宽度，看卡片列数自动增减，每列始终不小于 200px。这是 <code>repeat(auto-fill, minmax(200px, 1fr))</code> 一行搞定的，没有任何媒体查询。</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>卡片一</h3>
+      <p>这里是一段描述文字。</p>
+      <button>查看</button>
+    </div>
+    <div class="card">
+      <h3>卡片二</h3>
+      <p>描述长一点，验证「同一行卡片等高、按钮对齐」——因为 Grid 的网格项默认 stretch，同一行的卡片会被拉到一样高。</p>
+      <button>查看</button>
+    </div>
+    <div class="card">
+      <h3>卡片三</h3>
+      <p>短描述。</p>
+      <button>查看</button>
+    </div>
+    <div class="card">
+      <h3>卡片四</h3>
+      <p>又是描述文字。</p>
+      <button>查看</button>
+    </div>
+    <div class="card">
+      <h3>卡片五</h3>
+      <p>再一段描述。</p>
+      <button>查看</button>
+    </div>
+    <div class="card">
+      <h3>卡片六</h3>
+      <p>最后一张。</p>
+      <button>查看</button>
+    </div>
+  </div>
+</body>
+</html>
